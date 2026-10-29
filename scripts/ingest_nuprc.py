@@ -28,7 +28,7 @@ log = logging.getLogger("ingest_nuprc")
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-APP_INGESTION_URL = os.environ.get("APP_INGESTION_URL", "").strip()
+APP_INGESTION_URL = os.environ.get("APP_INGESTION_URL", "").strip().strip("'\"").strip()
 INGESTION_SECRET_KEY = os.environ.get("INGESTION_SECRET_KEY", "").strip()
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "").strip() or "claude-haiku-5-5"
@@ -70,88 +70,83 @@ HTTP_HEADERS = {"User-Agent": "Mozilla/5.0 (NNPC-Asset-Intelligence ingestion bo
 # ---------------------------------------------------------------------------
 # Structured output schema (forced tool use = guaranteed JSON, no fence-stripping)
 # ---------------------------------------------------------------------------
-ENTITY_TYPES = ["licence", "field", "terminal", "crude_stream", "company", "region", "total", "other"]
+ENTITY_TYPES = ["licence", "field", "terminal", "crude_stream", "company", "region", "national", "other"]
+MEASURES = ["crude_oil", "condensate", "oil_and_condensate",
+            "gas_produced", "gas_utilised", "gas_flared", "gas_other"]
+OIL_MEASURES = {"crude_oil", "condensate", "oil_and_condensate"}
 
+# Compact "wide" format: one entry per table row, with every month inside it.
+# This keeps output small enough for multi-month reports; the script expands it to one
+# record per row per month afterwards.
 EXTRACTION_TOOL = {
     "name": "record_report_data",
-    "description": "Record every production figure in the report at the granularity the report uses, plus a summary of its structure.",
+    "description": "Record every data row of the report, with all its monthly values, plus a summary of the report.",
     "input_schema": {
         "type": "object",
         "properties": {
             "report_summary": {
                 "type": "object",
-                "description": "What this report contains, so the pipeline can be tuned to it.",
                 "properties": {
                     "title": {"type": "string"},
-                    "row_granularity": {
-                        "type": "string",
-                        "description": "What each data row represents, e.g. 'terminal', 'crude stream', 'company', 'OML'.",
-                    },
-                    "periods_covered": {"type": "string", "description": "e.g. 'January to September 2026'."},
-                    "units": {"type": "string", "description": "Units exactly as printed, e.g. 'bopd', 'MMscf'."},
-                    "licences_mentioned": {
-                        "type": "array", "items": {"type": "string"},
-                        "description": "Every OML/OPL/PML identifier that appears anywhere in the report.",
-                    },
+                    "row_granularity": {"type": "string"},
+                    "periods_covered": {"type": "string"},
+                    "units": {"type": "string"},
+                    "licences_mentioned": {"type": "array", "items": {"type": "string"}},
                     "notes": {"type": "string"},
                 },
                 "required": ["title", "row_granularity", "periods_covered", "units", "licences_mentioned"],
             },
-            "records": {
+            "rows": {
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
                         "entity_type": {"type": "string", "enum": ENTITY_TYPES},
-                        "entity_name": {
-                            "type": "string",
-                            "description": "Row label exactly as printed, e.g. 'Forcados', 'Bonny Light', 'OML 111'.",
+                        "entity_name": {"type": "string", "description": "Row label as printed, e.g. 'Forcados'. Use 'Nigeria' for national figures."},
+                        "licence": {"type": ["string", "null"], "description": "OML only if explicitly named for this row."},
+                        "measure": {"type": "string", "enum": MEASURES},
+                        "measure_label": {"type": "string", "description": "Row/column label as printed, e.g. 'Blend Total', 'Unblended Condensate', 'Gas Flared'."},
+                        "unit": {"type": "string", "description": "Unit as printed, e.g. 'thousand bbl/d', 'MMscf'."},
+                        "values": {
+                            "type": "object",
+                            "description": "Keys are months as YYYY-MM; values are numbers exactly as printed. Omit months with no value.",
+                            "additionalProperties": {"type": "number"},
                         },
-                        "licence": {
-                            "type": ["string", "null"],
-                            "description": "OML identifier only if the row explicitly names one, else null.",
-                        },
-                        "operator": {"type": ["string", "null"], "description": "Company, if shown for the row."},
-                        "period": {"type": "string", "description": "Month as YYYY-MM."},
-                        "oil_value": {"type": ["number", "null"], "description": "Oil/condensate figure exactly as printed."},
-                        "oil_unit": {"type": ["string", "null"], "description": "Unit as printed, e.g. 'bopd', 'bbl'."},
-                        "gas_value": {"type": ["number", "null"], "description": "Gas figure exactly as printed."},
-                        "gas_unit": {"type": ["string", "null"], "description": "Unit as printed, e.g. 'MMscf/d', 'MMscf', 'Bscf'."},
                         "page": {"type": ["integer", "null"]},
-                        "evidence": {"type": "string", "description": "Up to 15 words copied from the row or its header."},
-                        "notes": {"type": ["string", "null"]},
                     },
-                    "required": ["entity_type", "entity_name", "period", "oil_value", "oil_unit",
-                                 "gas_value", "gas_unit", "evidence"],
+                    "required": ["entity_type", "entity_name", "measure", "measure_label", "unit", "values"],
                 },
             },
         },
-        "required": ["report_summary", "records"],
+        "required": ["report_summary", "rows"],
     },
 }
 
 SYSTEM_PROMPT = (
     "You are a meticulous oil and gas regulatory data analyst. You transcribe figures from "
-    "the document provided, exactly as printed. Never estimate, infer, convert, or invent numbers. "
-    "If a value is not shown, use null."
+    "the document provided, exactly as printed. Never estimate, infer, convert, or invent numbers."
 )
 
 USER_PROMPT = f"""Transcribe the production data in the attached NUPRC report.
 
-1. Fill report_summary: what each row represents, the periods covered, the units, and every
-   OML/OPL/PML identifier mentioned anywhere in the document.
-2. Add one record per row per month, at the granularity the report itself uses (terminal,
-   crude stream, company, field or licence). Do not skip rows because they are not OMLs.
-3. Copy values and units exactly as printed. Do not convert units or derive daily rates;
-   the pipeline does that. Strip thousands separators so 1,234.5 becomes 1234.5.
-4. Set "licence" only when the row explicitly names an OML. Never guess which OML a
-   terminal or company belongs to.
-5. Mark grand totals and subtotals with entity_type "total".
+1. Fill report_summary: what rows represent, periods covered, units, and every OML/OPL/PML
+   identifier mentioned anywhere in the document.
+2. Add ONE entry per data row, with all of that row's months inside "values"
+   (e.g. {{"2026-01": 245.3, "2026-02": 251.0}}). Do not create one entry per month.
+3. Terminals with sub-rows (Crude Oil / Condensate / Blend Total) become separate entries with
+   measure crude_oil / condensate / oil_and_condensate and the printed sub-row name in measure_label.
+4. National tables (e.g. rows are months, columns are gas produced / utilised / flared) become
+   entity_type "national", entity_name "Nigeria", one entry per column, keyed by month.
+   National summary rows (e.g. "Daily Average: Crude Oil", "Total") are also "national".
+5. Copy numbers and units exactly as printed; strip thousands separators. Do not convert.
+6. Omit months shown as blank or dashes. Skip percentage columns and year-total / year-average
+   columns; only monthly values belong in "values".
+7. Set "licence" only when a row explicitly names an OML. Never guess which OML a terminal
+   or company belongs to.
 
-Licences of particular interest (record their rows if present, but include all rows):
-{", ".join(TARGET_ASSETS)}.
+Licences of particular interest: {", ".join(TARGET_ASSETS)}.
 
-Call the record_report_data tool with your results."""
+Call the record_report_data tool."""
 
 
 # ---------------------------------------------------------------------------
@@ -465,8 +460,10 @@ def extract_with_claude(document_block: dict) -> list:
         response = _call_claude(document_block, max_tokens)
 
     if response.stop_reason == "max_tokens":
-        log.warning(f"Claude hit the {max_tokens}-token output limit; extraction may be incomplete. "
-                    "Raise MAX_OUTPUT_TOKENS if this repeats.")
+        raise RuntimeError(
+            f"Claude hit the {max_tokens}-token output limit, so the extraction is incomplete and "
+            "nothing was staged. Raise the MAX_OUTPUT_TOKENS variable (max 128000 for Haiku 5.5)."
+        )
 
     usage = response.usage
     log.info(f"Token usage: input={usage.input_tokens}, output={usage.output_tokens}")
@@ -478,7 +475,7 @@ def extract_with_claude(document_block: dict) -> list:
             for k in ("title", "row_granularity", "periods_covered", "units", "licences_mentioned", "notes"):
                 if summary.get(k):
                     log.info(f"  {k}: {summary[k]}")
-            return block.input.get("records", []) or []
+            return summary, block.input.get("rows", []) or []
     raise RuntimeError("Claude did not return a tool_use block.")
 
 
@@ -488,11 +485,11 @@ def extract_with_claude(document_block: dict) -> list:
 _TITLE_RE = re.compile(r"\bOML\s*-?\s*(\d+)\b", re.IGNORECASE)
 _PERIOD_RE = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
 
-# Unit tables: normalised unit -> (factor to the target unit, is_daily_rate)
+# Normalised unit -> (factor to target unit, is_daily_rate). Targets: bopd for oil, MMscf/d for gas.
 _OIL_UNITS = {
     **{u: (1.0, True) for u in ["bopd", "bpd", "bbl/d", "bbls/d", "b/d", "bbl/day", "bbls/day",
-                                "barrels/day", "barrelsperday", "bbld", "bblsd", "stb/d"]},
-    **{u: (1000.0, True) for u in ["kbopd", "kbpd", "kbbl/d", "mbopd", "mbpd"]},
+                                "barrels/day", "barrels/d", "bbld", "bblsd", "stb/d"]},
+    **{u: (1000.0, True) for u in ["kbopd", "kbpd", "kbbl/d", "kb/d"]},
     **{u: (1.0, False) for u in ["bbl", "bbls", "barrels", "bbl/month", "bbls/month", "barrels/month", "stb"]},
 }
 _GAS_UNITS = {
@@ -502,6 +499,19 @@ _GAS_UNITS = {
     **{u: (1000.0, False) for u in ["bscf", "bcf", "bscf/month"]},
     **{u: (0.001, False) for u in ["mscf", "mcf"]},
 }
+_MULTIPLIERS = [("thousand", 1e3), ("million", 1e6), ("000", 1e3)]
+
+
+def _normalise_unit(unit: str):
+    """'Thousand barrels per day (provisional)' -> ('barrels/day', 1000)."""
+    u = re.sub(r"\(.*?\)", "", (unit or "").lower())
+    u = re.sub(r"[\s.'’,]", "", u)
+    multiplier = 1.0
+    for word, factor in _MULTIPLIERS:
+        if u.startswith(word):
+            u, multiplier = u[len(word):], multiplier * factor
+    u = u.replace("per", "/").replace("//", "/")
+    return u, multiplier
 
 
 def _to_number(value):
@@ -518,72 +528,73 @@ def _to_number(value):
 
 def to_daily_rate(value, unit, period: str, table: dict):
     """Convert an as-printed figure to a daily rate. Returns (rate, conversion_note)."""
-    if value is None:
-        return None, None
-    key = re.sub(r"[\s.'’]", "", (unit or "").lower()).replace("per", "/").replace("//", "/")
+    key, multiplier = _normalise_unit(unit)
     if key not in table:
         return None, f"unrecognised unit {unit!r}; left unconverted"
     factor, is_daily = table[key]
+    factor *= multiplier
+    notes = [f"x{factor:g} from {unit}"] if factor != 1.0 else []
     if is_daily:
-        return round(value * factor, 3), None if factor == 1.0 else f"scaled x{factor:g} from {unit}"
+        return round(value * factor, 3), "; ".join(notes) or None
     year, month = map(int, period.split("-"))
     days = calendar.monthrange(year, month)[1]
-    return round(value * factor / days, 3), f"monthly {unit} / {days} days"
+    return round(value * factor / days, 3), "; ".join(notes + [f"monthly volume / {days} days"])
 
 
-def validate_records(raw_records: list, source_url: str, source_sha256: str) -> list:
+def expand_rows(rows: list, source_url: str, source_sha256: str, report_title: str) -> list:
+    """Wide rows from Claude -> one validated record per row per month."""
     clean, seen = [], set()
     extracted_at = datetime.now(timezone.utc).isoformat()
 
-    for raw in raw_records:
-        name = str(raw.get("entity_name") or "").strip()
-        etype = raw.get("entity_type") if raw.get("entity_type") in ENTITY_TYPES else "other"
-        period = str(raw.get("period") or "").strip()
-        if not name:
-            log.warning(f"Dropped record with no entity name: {raw}")
-            continue
-        if not _PERIOD_RE.match(period):
-            log.warning(f"Dropped {name}: invalid period {period!r}")
-            continue
-
-        oil_value, gas_value = _to_number(raw.get("oil_value")), _to_number(raw.get("gas_value"))
-        if oil_value is None and gas_value is None:
+    for row in rows:
+        name = str(row.get("entity_name") or "").strip()
+        etype = row.get("entity_type") if row.get("entity_type") in ENTITY_TYPES else "other"
+        measure = row.get("measure")
+        label = str(row.get("measure_label") or "").strip()
+        unit = row.get("unit")
+        values = row.get("values") if isinstance(row.get("values"), dict) else {}
+        if not name or measure not in MEASURES:
+            log.warning(f"Dropped row with missing name or measure: {name!r} / {measure!r}")
             continue
 
-        lic_match = _TITLE_RE.search(f"{raw.get('licence') or ''} {name if etype == 'licence' else ''}")
+        lic_match = _TITLE_RE.search(f"{row.get('licence') or ''} {name if etype == 'licence' else ''}")
         licence = f"OML {int(lic_match.group(1))}" if lic_match else None
+        is_oil = measure in OIL_MEASURES
 
-        key = (etype, name.lower(), period)
-        if key in seen:
-            log.warning(f"Duplicate {etype} '{name}' {period}; keeping first")
-            continue
-        seen.add(key)
+        for period, raw_value in values.items():
+            period = str(period).strip()
+            value = _to_number(raw_value)
+            if not _PERIOD_RE.match(period):
+                log.warning(f"Dropped {name}/{label}: invalid period {period!r}")
+                continue
+            if value is None:
+                continue
+            key = (etype, name.lower(), measure, label.lower(), period)
+            if key in seen:
+                continue
+            seen.add(key)
 
-        oil_bpd, oil_note = to_daily_rate(oil_value, raw.get("oil_unit"), period, _OIL_UNITS)
-        gas_rate, gas_note = to_daily_rate(gas_value, raw.get("gas_unit"), period, _GAS_UNITS)
-
-        clean.append({
-            "entity_type": etype,
-            "entity_name": name,
-            "licence": licence,
-            "is_target_asset": licence in TARGET_ASSETS,
-            "operator": raw.get("operator"),
-            "period": period,
-            "oil_bpd": oil_bpd,
-            "gas_mmscf_d": gas_rate,
-            "oil_value_as_printed": oil_value,
-            "oil_unit_as_printed": raw.get("oil_unit"),
-            "gas_value_as_printed": gas_value,
-            "gas_unit_as_printed": raw.get("gas_unit"),
-            "conversion_notes": "; ".join(n for n in (oil_note, gas_note) if n) or None,
-            "source_url": source_url,
-            "source_page": raw.get("page"),
-            "evidence": (raw.get("evidence") or "")[:300],
-            "notes": raw.get("notes"),
-            "source_sha256": source_sha256,
-            "extraction_model": ANTHROPIC_MODEL,
-            "extracted_at": extracted_at,
-        })
+            rate, note = to_daily_rate(value, unit, period, _OIL_UNITS if is_oil else _GAS_UNITS)
+            clean.append({
+                "entity_type": etype,
+                "entity_name": name,
+                "licence": licence,
+                "is_target_asset": licence in TARGET_ASSETS,
+                "measure": measure,
+                "measure_label": label,
+                "period": period,
+                "oil_bpd": rate if is_oil else None,
+                "gas_mmscf_d": None if is_oil else rate,
+                "value_as_printed": value,
+                "unit_as_printed": unit,
+                "conversion_notes": note,
+                "report_title": report_title,
+                "source_url": source_url,
+                "source_page": row.get("page"),
+                "source_sha256": source_sha256,
+                "extraction_model": ANTHROPIC_MODEL,
+                "extracted_at": extracted_at,
+            })
     return clean
 
 
@@ -623,21 +634,25 @@ def send_to_lovable_webhook(records: list, attempts: int = 3) -> None:
 def process_url(url: str) -> int:
     pdf_bytes = download_pdf(url)
     sha = hashlib.sha256(pdf_bytes).hexdigest()
-    raw = extract_with_claude(build_document_block(pdf_bytes))
-    log.info(f"Claude returned {len(raw)} raw records")
-    records = validate_records(raw, url, sha)
+    summary, rows = extract_with_claude(build_document_block(pdf_bytes))
+    records = expand_rows(rows, url, sha, summary.get("title") or "")
+    log.info(f"Claude returned {len(rows)} table rows -> {len(records)} monthly records")
     if not records:
         log.warning(f"No usable records in {url}")
         return 0
-    by_type = {}
+
+    by_type, by_measure = {}, {}
     for r in records:
         by_type[r["entity_type"]] = by_type.get(r["entity_type"], 0) + 1
+        by_measure[r["measure"]] = by_measure.get(r["measure"], 0) + 1
     targets = sorted({r["licence"] for r in records if r["is_target_asset"]})
-    unconverted = sum(1 for r in records if r["conversion_notes"] and "unrecognised" in r["conversion_notes"])
-    log.info(f"{len(records)} records by type: {by_type}")
-    log.info(f"Target OMLs with explicit rows: {targets or 'none'}")
+    unconverted = sorted({r["unit_as_printed"] for r in records
+                          if r["conversion_notes"] and "unrecognised" in r["conversion_notes"]})
+    log.info(f"  by entity type: {by_type}")
+    log.info(f"  by measure: {by_measure}")
+    log.info(f"  target OMLs with explicit rows: {targets or 'none'}")
     if unconverted:
-        log.warning(f"{unconverted} record(s) have units the pipeline does not recognise yet (kept as printed).")
+        log.warning(f"  units not recognised (kept as printed, rate left empty): {unconverted}")
     send_to_lovable_webhook(records)
     return len(records)
 
@@ -650,6 +665,14 @@ def main() -> int:
     }.items() if not v]
     if missing:
         log.error(f"Missing required environment variables: {', '.join(missing)}")
+        return 1
+    parsed = urlparse(APP_INGESTION_URL)
+    if parsed.scheme != "https" or not parsed.netloc or " " in APP_INGESTION_URL:
+        log.error(
+            "APP_INGESTION_URL is not a valid https:// address "
+            f"(length {len(APP_INGESTION_URL)}, starts with https://: {APP_INGESTION_URL.startswith('https://')}). "
+            "Re-save the secret as the bare URL with no quotes, brackets or spaces."
+        )
         return 1
 
     try:
