@@ -51,6 +51,7 @@ NUPRC_MAX_PAGES = int(os.environ.get("NUPRC_MAX_PAGES", "").strip() or "60")
 USE_BROWSER = os.environ.get("USE_BROWSER", "1").strip().lower() in ("1", "true", "yes")
 DISCOVERY_KEYWORDS = ["production status report", "production report", "production"]
 DRY_RUN = os.environ.get("DRY_RUN", "").strip().lower() in ("1", "true", "yes")
+MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "").strip() or "16000")
 
 TARGET_ASSETS = [
     "OML 111", "OML 65", "OML 20", "OML 42", "OML 18", "OML 11",
@@ -127,7 +128,8 @@ USER_PROMPT = f"""Extract block-level production figures from the attached NUPRC
 Target licences (ignore all others): {", ".join(TARGET_ASSETS)}.
 
 Rules:
-- One record per licence per reporting month.
+- One record per licence per reporting month. Reports covering several months
+  (e.g. JAN-SEP) should produce a separate record for each month shown.
 - oil_bpd and gas_mmscf_d must be daily rates as printed. Do NOT convert monthly or
   cumulative volumes; leave the field null and describe what was shown in "notes".
 - If the report only gives terminal or stream totals (not per-OML figures), do not
@@ -146,7 +148,9 @@ _ABS_PDF_RE = re.compile(r"""https?:(?://|\\/\\/)[^\s"'<>()]+?\.pdf\b""", re.IGN
 
 _MONTHS = {m: i for i, m in enumerate(
     ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], start=1)}
-_MONTH_YEAR_RE = re.compile(r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s_\-.,]*((?:19|20)\d{2})")
+_MONTH_NAMES = {**_MONTHS, **{full: _MONTHS[full[:3]] for full in [
+    "january", "february", "march", "april", "june", "july", "august",
+    "september", "sept", "october", "november", "december"]}}
 _YEAR_MONTH_RE = re.compile(r"((?:19|20)\d{2})[\s_\-./](0?[1-9]|1[0-2])(?!\d)")
 _YEAR_RE = re.compile(r"(?<!\d)((?:19|20)\d{2})(?!\d)")
 
@@ -160,14 +164,22 @@ def _is_pdf_link(url: str) -> bool:
 
 
 def guess_report_period(url: str) -> str:
-    """Best-effort YYYY-MM from a file name or path, used to rank reports newest first."""
-    text = unquote(url).lower()
-    found = [f"{y}-{_MONTHS[m[:3]]:02d}" for m, y in _MONTH_YEAR_RE.findall(text)]
-    found += [f"{y}-{int(mo):02d}" for y, mo in _YEAR_MONTH_RE.findall(text)]
-    if found:
-        return max(found)
-    years = _YEAR_RE.findall(text)
-    return f"{max(years)}-00" if years else "0000-00"
+    """Best-effort YYYY-MM from the file name, used to rank reports newest first.
+
+    Handles 'JAN-SEP_2026', '2026-Monthly-Gas-Data_August', 'Production_2026-08'.
+    Year-only names return 'YYYY-00' (treated as a full-year report).
+    """
+    name = unquote(urlparse(url).path.rsplit("/", 1)[-1]).lower()
+    years = _YEAR_RE.findall(name)
+    if not years:
+        return "0000-00"
+    year = max(years)
+    numeric = [f"{y}-{int(m):02d}" for y, m in _YEAR_MONTH_RE.findall(name)]
+    if numeric:
+        return max(numeric)
+    tokens = re.split(r"[^a-z]+", name)
+    months = [_MONTH_NAMES[t] for t in tokens if t in _MONTH_NAMES]
+    return f"{year}-{max(months):02d}" if months else f"{year}-00"
 
 
 def extract_links(html: str, base_url: str):
@@ -260,8 +272,28 @@ def filter_and_rank(found: dict) -> list:
         on_report_page = any(k in unquote(page).lower() for k in NUPRC_REPORT_KEYWORDS)
         return on_report_page and guess_report_period(pdf) != "0000-00"
 
-    matches = [pdf for pdf, page in found.items() if is_match(pdf, page)]
-    return sorted(matches, key=lambda u: (guess_report_period(u), u), reverse=True)
+    matches = [(pdf, page) for pdf, page in found.items() if is_match(pdf, page)]
+    return sorted(matches, key=lambda m: (guess_report_period(m[0]), m[0]), reverse=True)
+
+
+def _series_name(page: str) -> str:
+    """The report series is the page the PDF was listed on, e.g. 'oil-production-report'."""
+    return urlparse(page).path.rstrip("/").rsplit("/", 1)[-1] or "unknown" if page else "unknown"
+
+
+def select_newest_per_series(matches: list, per_series: int) -> list:
+    groups = {}
+    for pdf, page in matches:  # already newest first
+        groups.setdefault(_series_name(page), []).append(pdf)
+    selected = []
+    for series in sorted(groups):
+        pdfs = groups[series]
+        log.info(f"Series '{series}': {len(pdfs)} report(s)")
+        for i, pdf in enumerate(pdfs[:15], start=1):
+            marker = "  <- selected" if i <= per_series else ""
+            log.info(f"  {i:>2}. [{guess_report_period(pdf)}] {pdf}{marker}")
+        selected.extend(pdfs[:per_series])
+    return selected
 
 
 def discover_via_wp_media_api() -> list:
@@ -314,11 +346,8 @@ def resolve_pdf_urls() -> list:
             "Run with dry_run to see what the crawler visited, or paste a direct PDF link."
         )
 
-    log.info(f"{len(candidates)} matching report(s) found. Newest first:")
-    for i, url in enumerate(candidates[:15], start=1):
-        log.info(f"  {i:>2}. [{guess_report_period(url)}] {url}")
-
-    selected = direct + candidates[:NUPRC_MAX_REPORTS]
+    log.info(f"{len(candidates)} matching report(s) found. Newest first, per series:")
+    selected = direct + select_newest_per_series(candidates, NUPRC_MAX_REPORTS)
     log.info(f"Selected {len(selected)} report(s) for extraction.")
     return selected
 
@@ -384,14 +413,14 @@ def build_document_block(pdf_bytes: bytes) -> dict:
 # ---------------------------------------------------------------------------
 # Step 3: extract with Claude
 # ---------------------------------------------------------------------------
-claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY or None, max_retries=3, timeout=180.0)
+claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY or None, max_retries=3, timeout=600.0)
 
 
 def extract_with_claude(document_block: dict) -> list:
     log.info(f"Calling Claude model: {ANTHROPIC_MODEL}")
-    response = claude.messages.create(
+    with claude.messages.stream(
         model=ANTHROPIC_MODEL,
-        max_tokens=4096,
+        max_tokens=MAX_OUTPUT_TOKENS,
         system=SYSTEM_PROMPT,
         tools=[EXTRACTION_TOOL],
         tool_choice={"type": "tool", "name": EXTRACTION_TOOL["name"]},
@@ -399,10 +428,12 @@ def extract_with_claude(document_block: dict) -> list:
             "role": "user",
             "content": [document_block, {"type": "text", "text": USER_PROMPT}],
         }],
-    )
+    ) as stream:
+        response = stream.get_final_message()
 
     if response.stop_reason == "max_tokens":
-        log.warning("Claude hit max_tokens; extraction may be incomplete.")
+        log.warning(f"Claude hit the {MAX_OUTPUT_TOKENS}-token output limit; extraction may be incomplete. "
+                    "Raise MAX_OUTPUT_TOKENS if this repeats.")
 
     usage = response.usage
     log.info(f"Token usage: input={usage.input_tokens}, output={usage.output_tokens}")
