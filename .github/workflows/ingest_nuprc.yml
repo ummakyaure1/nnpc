@@ -57,6 +57,7 @@ jobs:
           ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-haiku-5-5' }}
           NUPRC_REPORTS_INDEX: ${{ vars.NUPRC_REPORTS_INDEX || 'https://www.nuprc.gov.ng/reports' }}
           NUPRC_REPORT_KEYWORDS: ${{ vars.NUPRC_REPORT_KEYWORDS || 'production' }}
+          MAX_OUTPUT_TOKENS: ${{ vars.MAX_OUTPUT_TOKENS || '16000' }}
           NUPRC_PDF_URLS: ${{ inputs.pdf_url }}
           NUPRC_MAX_REPORTS: ${{ inputs.max_reports || vars.NUPRC_MAX_REPORTS || '1' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
