@@ -6,11 +6,15 @@ on:
   workflow_dispatch:
     inputs:
       pdf_url:
-        description: 'Optional NUPRC PDF URL(s), comma-separated. Leave blank to auto-discover.'
+        description: 'Optional: PDF links or NUPRC report pages, comma-separated. Blank = crawl the /reports archive.'
         required: false
         default: ''
+      max_reports:
+        description: 'How many of the newest matching reports to process (raise for a backfill).'
+        required: false
+        default: '1'
       dry_run:
-        description: 'Discovery only: list candidate PDFs without calling Claude or posting.'
+        description: 'Discovery only: list the PDFs found without calling Claude or posting.'
         type: boolean
         required: false
         default: false
@@ -25,7 +29,7 @@ permissions:
 jobs:
   run-ingestion-scraper:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Checkout Repository Code
@@ -39,8 +43,11 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install "requests>=2.31" "pypdf>=4.0" "anthropic>=0.40"
-          pip freeze | grep -iE '^(requests|pypdf|anthropic)=='
+          pip install "requests>=2.31" "pypdf>=4.0" "anthropic>=0.40" "playwright>=1.40"
+          pip freeze | grep -iE '^(requests|pypdf|anthropic|playwright)=='
+
+      - name: Install headless browser (fallback for JavaScript-rendered report pages)
+        run: python -m playwright install --with-deps chromium
 
       - name: Execute Scraper Pipeline Script
         env:
@@ -48,9 +55,10 @@ jobs:
           INGESTION_SECRET_KEY: ${{ secrets.INGESTION_SECRET_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-haiku-5-5' }}
+          NUPRC_REPORTS_INDEX: ${{ vars.NUPRC_REPORTS_INDEX || 'https://www.nuprc.gov.ng/reports' }}
+          NUPRC_REPORT_KEYWORDS: ${{ vars.NUPRC_REPORT_KEYWORDS || 'production' }}
           NUPRC_PDF_URLS: ${{ inputs.pdf_url }}
-          NUPRC_LISTING_PAGES: ${{ vars.NUPRC_LISTING_PAGES }}
-          NUPRC_MAX_REPORTS: ${{ vars.NUPRC_MAX_REPORTS || '1' }}
+          NUPRC_MAX_REPORTS: ${{ inputs.max_reports || vars.NUPRC_MAX_REPORTS || '1' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
         run: |
           python scripts/ingest_nuprc.py
