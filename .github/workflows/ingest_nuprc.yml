@@ -28,5 +28,6 @@ jobs:
           APP_INGESTION_URL: ${{ secrets.APP_INGESTION_URL }}
           INGESTION_SECRET_KEY: ${{ secrets.INGESTION_SECRET_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
         run: |
           python scripts/ingest_nuprc.py
