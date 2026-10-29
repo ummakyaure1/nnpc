@@ -14,6 +14,7 @@ import re
 import sys
 import time
 from datetime import datetime, timezone
+from urllib.parse import urljoin
 
 import anthropic
 import requests
@@ -30,11 +31,20 @@ INGESTION_SECRET_KEY = os.environ.get("INGESTION_SECRET_KEY", "").strip()
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "").strip() or "claude-haiku-5-5"
 
-DEFAULT_PDF_URLS = [
-    "https://www.nuprc.gov.ng/wp-content/uploads/2026/04/Production_Report.pdf",
-]
-_url_override = os.environ.get("NUPRC_PDF_URLS", "").strip()
-PDF_URLS = [u.strip() for u in _url_override.split(",") if u.strip()] or DEFAULT_PDF_URLS
+def _csv_env(name: str) -> list:
+    return [v.strip() for v in os.environ.get(name, "").split(",") if v.strip()]
+
+
+# Source selection, in priority order:
+#   1. NUPRC_PDF_URLS       explicit PDF links (manual runs / backfills)
+#   2. NUPRC_LISTING_PAGES  NUPRC web pages to scan for production-report PDF links
+#   3. WordPress media API  search NUPRC's media library for production-report PDFs
+MANUAL_PDF_URLS = _csv_env("NUPRC_PDF_URLS")
+NUPRC_LISTING_PAGES = _csv_env("NUPRC_LISTING_PAGES")
+NUPRC_BASE_URL = (os.environ.get("NUPRC_BASE_URL", "").strip() or "https://www.nuprc.gov.ng").rstrip("/")
+NUPRC_MAX_REPORTS = int(os.environ.get("NUPRC_MAX_REPORTS", "").strip() or "1")
+DISCOVERY_KEYWORDS = ["production status report", "production report", "production"]
+DRY_RUN = os.environ.get("DRY_RUN", "").strip().lower() in ("1", "true", "yes")
 
 TARGET_ASSETS = [
     "OML 111", "OML 65", "OML 20", "OML 42", "OML 18", "OML 11",
@@ -119,6 +129,95 @@ Rules:
 - "evidence" must be copied from the document, not paraphrased.
 
 Call the record_production_figures tool with your results."""
+
+
+# ---------------------------------------------------------------------------
+# Step 0: discover report URLs
+# ---------------------------------------------------------------------------
+_PDF_HREF_RE = re.compile(r"""href=["']([^"']+?\.pdf)(?:\?[^"']*)?["']""", re.IGNORECASE)
+_UPLOAD_DATE_RE = re.compile(r"/uploads/(\d{4})/(\d{2})/")
+
+
+def _upload_sort_key(url: str) -> str:
+    """WordPress stores uploads under /uploads/YYYY/MM/, which is a good recency proxy."""
+    m = _UPLOAD_DATE_RE.search(url)
+    return f"{m.group(1)}-{m.group(2)}" if m else "0000-00"
+
+
+def discover_via_listing_pages() -> list:
+    urls = []
+    for page in NUPRC_LISTING_PAGES:
+        try:
+            log.info(f"Scanning listing page: {page}")
+            r = requests.get(page, headers=HTTP_HEADERS, timeout=30)
+            r.raise_for_status()
+        except requests.RequestException as e:
+            log.warning(f"Could not load listing page {page}: {e}")
+            continue
+        for href in _PDF_HREF_RE.findall(r.text):
+            full = urljoin(page, href)
+            if "production" in full.lower() and full not in urls:
+                urls.append(full)
+    return sorted(urls, key=_upload_sort_key, reverse=True)
+
+
+def discover_via_wp_media_api() -> list:
+    """NUPRC runs WordPress; its media library is often searchable via the public REST API."""
+    endpoint = f"{NUPRC_BASE_URL}/wp-json/wp/v2/media"
+    for keyword in DISCOVERY_KEYWORDS:
+        try:
+            r = requests.get(
+                endpoint,
+                params={"search": keyword, "mime_type": "application/pdf",
+                        "per_page": 30, "orderby": "date", "order": "desc"},
+                headers=HTTP_HEADERS,
+                timeout=30,
+            )
+        except requests.RequestException as e:
+            log.warning(f"WordPress media API unreachable: {e}")
+            return []
+        if r.status_code != 200:
+            log.warning(f"WordPress media API returned HTTP {r.status_code}; it may be disabled.")
+            return []
+        try:
+            items = r.json()
+        except ValueError:
+            log.warning("WordPress media API did not return JSON.")
+            return []
+
+        found = {}
+        for item in items if isinstance(items, list) else []:
+            url = item.get("source_url") or ""
+            title = (item.get("title") or {}).get("rendered", "")
+            if url.lower().endswith(".pdf") and "production" in f"{url} {title}".lower():
+                found[url] = item.get("date") or ""
+        if found:
+            log.info(f"Media API found {len(found)} candidate PDFs for '{keyword}'")
+            return sorted(found, key=found.get, reverse=True)
+    return []
+
+
+def resolve_pdf_urls() -> list:
+    if MANUAL_PDF_URLS:
+        log.info(f"Using {len(MANUAL_PDF_URLS)} manually supplied PDF URL(s).")
+        return MANUAL_PDF_URLS
+
+    candidates = discover_via_listing_pages() if NUPRC_LISTING_PAGES else []
+    if not candidates:
+        candidates = discover_via_wp_media_api()
+
+    if not candidates:
+        raise RuntimeError(
+            "No production-report PDFs discovered. Find the report on nuprc.gov.ng and either "
+            "run the workflow manually with its PDF link, or set the NUPRC_LISTING_PAGES "
+            "repository variable to the page that lists the reports."
+        )
+
+    for i, url in enumerate(candidates[:10], start=1):
+        log.info(f"  candidate {i}: {url}")
+    selected = candidates[:NUPRC_MAX_REPORTS]
+    log.info(f"Selected {len(selected)} most recent report(s).")
+    return selected
 
 
 # ---------------------------------------------------------------------------
@@ -335,8 +434,18 @@ def main() -> int:
         log.error(f"Missing required environment variables: {', '.join(missing)}")
         return 1
 
+    try:
+        pdf_urls = resolve_pdf_urls()
+    except RuntimeError as e:
+        log.error(str(e))
+        return 1
+
+    if DRY_RUN:
+        log.info("DRY_RUN enabled: discovery only, no Claude calls or webhook posts.")
+        return 0
+
     total, failures = 0, []
-    for url in PDF_URLS:
+    for url in pdf_urls:
         try:
             total += process_url(url)
         except anthropic.NotFoundError as e:
@@ -346,7 +455,7 @@ def main() -> int:
             log.exception(f"Failed processing {url}: {e}")
             failures.append(url)
 
-    log.info(f"Done. {total} records staged from {len(PDF_URLS) - len(failures)}/{len(PDF_URLS)} documents.")
+    log.info(f"Done. {total} records staged from {len(pdf_urls) - len(failures)}/{len(pdf_urls)} documents.")
     return 1 if failures else 0
 
 
