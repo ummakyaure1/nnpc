@@ -603,7 +603,11 @@ def expand_rows(rows: list, source_url: str, source_sha256: str, report_title: s
 # ---------------------------------------------------------------------------
 def send_to_lovable_webhook(records: list, attempts: int = 3) -> None:
     payload = [
-        {"target_table": STAGING_TARGET_TABLE, "proposed_data": r, "source_url": r["source_url"]}
+        {"target_table": STAGING_TARGET_TABLE, "proposed_data": r, "source_url": r["source_url"],
+         "submitted_by": "pipeline:nuprc",
+         "dedupe_key": hashlib.sha256("|".join(str(x) for x in (
+             "nuprc", r["source_sha256"], r["entity_type"], r["entity_name"].lower(),
+             r["measure"], r["measure_label"].lower(), r["period"])).encode("utf-8")).hexdigest()}
         for r in records
     ]
     headers = {"Content-Type": "application/json", "x-ingestion-key": INGESTION_SECRET_KEY}

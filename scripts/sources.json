@@ -1,0 +1,131 @@
+{
+  "_note": "Edit this file to add or change sources. Start URLs marked 'verify' have not been confirmed yet: run the collector with dry_run and check the log.",
+  "news": {
+    "lookback_days": 10,
+    "max_articles_per_run": 30,
+    "keywords": [
+      "oil",
+      "gas",
+      "crude",
+      "condensate",
+      "OML",
+      "OPL",
+      "PML",
+      "PPL",
+      "NUPRC",
+      "NNPC",
+      "spill",
+      "pipeline",
+      "terminal",
+      "licence",
+      "license",
+      "lease",
+      "divest",
+      "acquisition",
+      "upstream",
+      "barrels",
+      "bopd",
+      "flare",
+      "host community",
+      "HCDT"
+    ],
+    "sources": [
+      {
+        "name": "NUPRC",
+        "regulator": "NUPRC",
+        "start_urls": [
+          "https://www.nuprc.gov.ng/"
+        ],
+        "article_url_pattern": "/(news|press|media|events|publications?)/",
+        "verify": true
+      },
+      {
+        "name": "NNPC Ltd",
+        "regulator": "NNPC",
+        "start_urls": [
+          "https://nnpcgroup.com/"
+        ],
+        "article_url_pattern": "/(news|press|media|newsroom)",
+        "verify": true
+      },
+      {
+        "name": "NOSDRA",
+        "regulator": "NOSDRA",
+        "start_urls": [
+          "https://nosdra.gov.ng/"
+        ],
+        "article_url_pattern": "/(news|press|media|20\\d\\d)/",
+        "verify": true
+      },
+      {
+        "name": "NMDPRA",
+        "regulator": "NMDPRA",
+        "start_urls": [
+          "https://nmdpra.gov.ng/"
+        ],
+        "article_url_pattern": "/(news|press|media)",
+        "verify": true
+      }
+    ],
+    "rss_feeds": [
+      {
+        "name": "Sweetcrude Reports",
+        "url": "https://sweetcrudereports.com/feed/",
+        "verify": true
+      }
+    ]
+  },
+  "nosdra": {
+    "lookback_days": 60,
+    "start_urls": [
+      "https://nosdra.oilspillmonitor.ng/oilspillmonitor.html"
+    ],
+    "data_file_extensions": [
+      "csv",
+      "xlsx",
+      "xls",
+      "json",
+      "pdf"
+    ],
+    "keywords": [
+      "spill",
+      "incident",
+      "jiv",
+      "query",
+      "feature",
+      "data",
+      "download",
+      "report",
+      "export"
+    ],
+    "max_files_per_run": 8,
+    "verify": true
+  },
+  "assets": {
+    "scope": "pilots",
+    "reports_index": "https://www.nuprc.gov.ng/reports",
+    "report_keywords": [
+      "acreage",
+      "licen",
+      "concession",
+      "lease",
+      "asset",
+      "annual-financial-operational"
+    ],
+    "max_reports_per_series": 1
+  },
+  "reference": {
+    "folder": "data/reference",
+    "title_properties": [
+      "title",
+      "TITLE",
+      "title_number",
+      "OML",
+      "BLOCK",
+      "Block",
+      "NAME",
+      "Name",
+      "name"
+    ]
+  }
+}
