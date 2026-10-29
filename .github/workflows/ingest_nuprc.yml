@@ -6,9 +6,14 @@ on:
   workflow_dispatch:
     inputs:
       pdf_url:
-        description: 'Optional NUPRC PDF URL(s), comma-separated. Leave blank to use the default.'
+        description: 'Optional NUPRC PDF URL(s), comma-separated. Leave blank to auto-discover.'
         required: false
         default: ''
+      dry_run:
+        description: 'Discovery only: list candidate PDFs without calling Claude or posting.'
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: nuprc-ingestion
@@ -44,5 +49,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-haiku-5-5' }}
           NUPRC_PDF_URLS: ${{ inputs.pdf_url }}
+          NUPRC_LISTING_PAGES: ${{ vars.NUPRC_LISTING_PAGES }}
+          NUPRC_MAX_REPORTS: ${{ vars.NUPRC_MAX_REPORTS || '1' }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
         run: |
           python scripts/ingest_nuprc.py
