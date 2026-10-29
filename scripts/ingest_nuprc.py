@@ -40,7 +40,7 @@ def extract_production_data_with_claude(pdf_url):
     """
     
     response = claude.messages.create(
-        model="claude-3-5-sonnet-latest",
+        model="claude-3-haiku-20240307",
         max_tokens=1500,
         messages=[{"role": "user", "content": prompt}]
     )
