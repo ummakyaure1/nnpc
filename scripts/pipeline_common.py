@@ -156,6 +156,25 @@ def pdf_text(pdf_bytes: bytes, max_pages: int = 200) -> str:
         return ""
 
 
+def pdf_chunks(pdf_bytes: bytes, size: int = 90) -> list:
+    """Split a long PDF into parts of at most `size` pages. Returns [(first_page_number, bytes)]."""
+    from pypdf import PdfWriter
+    reader = PdfReader(io.BytesIO(pdf_bytes))
+    total = len(reader.pages)
+    if total <= size:
+        return [(1, pdf_bytes)]
+    parts = []
+    for start in range(0, total, size):
+        writer = PdfWriter()
+        for i in range(start, min(start + size, total)):
+            writer.add_page(reader.pages[i])
+        buf = io.BytesIO()
+        writer.write(buf)
+        parts.append((start + 1, buf.getvalue()))
+    log.info(f"Split a {total}-page PDF into {len(parts)} parts of up to {size} pages.")
+    return parts
+
+
 def pdf_document_block(pdf_bytes: bytes) -> dict:
     """Native PDF for Claude when it fits; otherwise extracted text with page markers."""
     try:
@@ -224,6 +243,10 @@ class BrowserFetcher:
         self._pw.stop()
 
 
+NON_PAGE_EXT = {"jpg", "jpeg", "png", "gif", "svg", "webp", "ico", "pdf", "csv", "xlsx", "xls", "zip",
+                "doc", "docx", "ppt", "pptx", "mp4", "mp3", "json", "xml", "css", "js"}
+
+
 def crawl(start_urls: list, follow, fetch_html, max_pages: int = 40, depth: int = 1) -> dict:
     """Breadth-first crawl. follow(url) decides which pages to open.
     Returns {link_url: {"text": anchor_text, "found_on": page_url}} for every link seen."""
@@ -242,9 +265,67 @@ def crawl(start_urls: list, follow, fetch_html, max_pages: int = 40, depth: int 
         for link, text in found:
             if link not in links or (text and not links[link]["text"]):
                 links[link] = {"text": text, "found_on": url}
-            if d < depth and link not in visited and follow(link):
+            if d < depth and link not in visited and file_ext(link) not in NON_PAGE_EXT and follow(link):
                 queue.append((link, d + 1))
     return links
+
+
+def render_page(url: str, wait_ms: int = 6000, max_bytes: int = 25 * 1024 * 1024):
+    """Open a page in a headless browser. Returns (rendered_html, captured_data_responses).
+    Each captured item: {"url", "content_type", "body"}. Falls back to plain HTML without a browser."""
+    if not USE_BROWSER:
+        return fetch_html_static(url), []
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        return fetch_html_static(url), []
+    captured = []
+
+    def on_response(resp):
+        ctype = (resp.headers.get("content-type") or "").lower()
+        if "json" not in ctype and "csv" not in ctype:
+            return
+        try:
+            body = resp.body()
+        except Exception:
+            return
+        if 200 <= len(body) <= max_bytes:
+            captured.append({"url": resp.url, "content_type": ctype, "body": body})
+
+    html = None
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(user_agent=HTTP_HEADERS["User-Agent"])
+        page.on("response", on_response)
+        try:
+            page.goto(url, wait_until="networkidle", timeout=90_000)
+            page.wait_for_timeout(wait_ms)
+            html = page.content()
+        except Exception as e:
+            log.warning(f"Browser load of {url} incomplete: {e}")
+            try:
+                html = page.content()
+            except Exception:
+                pass
+        browser.close()
+    captured.sort(key=lambda c: len(c["body"]), reverse=True)
+    return html, captured
+
+
+_MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+
+def guess_period(text: str) -> str:
+    """Best-effort 'YYYY-MM' (or 'YYYY-00') from a title or file name, for ranking newest first."""
+    t = unquote(str(text or "")).lower()
+    years = re.findall(r"(?<!\d)((?:19|20)\d{2})(?!\d)", t)
+    if not years:
+        return "0000-00"
+    nums = re.findall(r"((?:19|20)\d{2})[\s_\-./](0?[1-9]|1[0-2])(?!\d)", t)
+    if nums:
+        return max(f"{y}-{int(m):02d}" for y, m in nums)
+    months = [i for i, m in enumerate(_MONTHS, 1) if re.search(rf"(?<![a-z]){m}[a-z]*", t)]
+    return f"{max(years)}-{max(months):02d}" if months else f"{max(years)}-00"
 
 
 def crawl_with_fallback(start_urls: list, follow, wanted, **kw) -> dict:

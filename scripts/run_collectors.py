@@ -15,6 +15,7 @@ COLLECTORS = {
     "nosdra": "ingest_nosdra",      # oil spill incidents
     "news": "ingest_news",          # bulletin + title facts
     "assets": "ingest_assets",      # licence register for the OMLs
+    "nmdpra": "ingest_nmdpra",      # NMDPRA gas and industry reports
     "reference": "ingest_reference",  # map files dropped in data/reference/
 }
 

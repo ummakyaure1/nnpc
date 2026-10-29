@@ -1,7 +1,7 @@
 {
   "_note": "Edit this file to add or change sources. Start URLs marked 'verify' have not been confirmed yet: run the collector with dry_run and check the log.",
   "news": {
-    "lookback_days": 10,
+    "lookback_days": 4,
     "max_articles_per_run": 30,
     "keywords": [
       "oil",
@@ -36,8 +36,8 @@
         "start_urls": [
           "https://www.nuprc.gov.ng/"
         ],
-        "article_url_pattern": "/(news|press|media|events|publications?)/",
-        "verify": true
+        "article_url_pattern": "/media/news/",
+        "verify": false
       },
       {
         "name": "NNPC Ltd",
@@ -45,37 +45,17 @@
         "start_urls": [
           "https://nnpcgroup.com/"
         ],
-        "article_url_pattern": "/(news|press|media|newsroom)",
-        "verify": true
-      },
-      {
-        "name": "NOSDRA",
-        "regulator": "NOSDRA",
-        "start_urls": [
-          "https://nosdra.gov.ng/"
-        ],
-        "article_url_pattern": "/(news|press|media|20\\d\\d)/",
-        "verify": true
-      },
-      {
-        "name": "NMDPRA",
-        "regulator": "NMDPRA",
-        "start_urls": [
-          "https://nmdpra.gov.ng/"
-        ],
-        "article_url_pattern": "/(news|press|media)",
-        "verify": true
+        "article_url_pattern": "/(insights/press-release|news|newsroom)",
+        "verify": false
       }
     ],
-    "rss_feeds": [
-      {
-        "name": "Sweetcrude Reports",
-        "url": "https://sweetcrudereports.com/feed/",
-        "verify": true
-      }
-    ]
+    "rss_feeds": []
   },
   "nosdra": {
+    "api_url": "https://nosdra.oilspillmonitor.ng/osm-2019/api/spill-data.php?dataset=nosdra&format=json",
+    "public_page": "https://nosdra.oilspillmonitor.ng/oilspillmonitor.html",
+    "volume_unit": "bbl",
+    "_volume_unit_note": "Confirm on the Oil Spill Monitor that 'estimated quantity' is in barrels; the value as reported is always kept too.",
     "lookback_days": 60,
     "start_urls": [
       "https://nosdra.oilspillmonitor.ng/oilspillmonitor.html"
@@ -95,22 +75,24 @@
       "feature",
       "data",
       "download",
-      "report",
       "export"
     ],
-    "max_files_per_run": 8,
-    "verify": true
+    "exclude_words": [
+      "guide",
+      "training",
+      "manual",
+      "brochure"
+    ],
+    "max_files_per_run": 8
   },
   "assets": {
     "scope": "pilots",
     "reports_index": "https://www.nuprc.gov.ng/reports",
     "report_keywords": [
       "acreage",
-      "licen",
       "concession",
-      "lease",
-      "asset",
-      "annual-financial-operational"
+      "licen",
+      "lease"
     ],
     "max_reports_per_series": 1
   },
@@ -126,6 +108,42 @@
       "NAME",
       "Name",
       "name"
+    ]
+  },
+  "nmdpra": {
+    "_note": "stage=true sends new documents to the MD bulletin; stage=false only lists what is found in the log.",
+    "max_docs_per_page": 2,
+    "pages": [
+      {
+        "name": "Natural Gas Report",
+        "url": "https://www.nmdpra.gov.ng/NaturalGasReport",
+        "stage": true
+      },
+      {
+        "name": "Oil & Gas Data",
+        "url": "https://www.nmdpra.gov.ng/OilGasData",
+        "stage": true
+      },
+      {
+        "name": "Annual Reports",
+        "url": "https://www.nmdpra.gov.ng/AnnualReports",
+        "stage": true
+      },
+      {
+        "name": "Vessel Schedule",
+        "url": "https://www.nmdpra.gov.ng/VesselSchedule",
+        "stage": false
+      },
+      {
+        "name": "Daily Truck-out",
+        "url": "https://www.nmdpra.gov.ng/DailyTruckout",
+        "stage": false
+      },
+      {
+        "name": "Stock Report",
+        "url": "https://www.nmdpra.gov.ng/StockReport",
+        "stage": false
+      }
     ]
   }
 }
