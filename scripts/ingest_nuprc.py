@@ -9,11 +9,20 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 APP_INGESTION_URL = os.environ.get("APP_INGESTION_URL")
 INGESTION_SECRET_KEY = os.environ.get("INGESTION_SECRET_KEY")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+ANTHROPIC_WORKSPACE_ID = os.environ.get("ANTHROPIC_WORKSPACE_ID")
 
 if not all([APP_INGESTION_URL, INGESTION_SECRET_KEY, ANTHROPIC_API_KEY]):
     raise ValueError("Missing required environment variables: APP_INGESTION_URL, INGESTION_SECRET_KEY, or ANTHROPIC_API_KEY")
 
-claude = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+# Pass workspace header dynamically
+headers = {}
+if ANTHROPIC_WORKSPACE_ID:
+    headers["anthropic-workspace-id"] = ANTHROPIC_WORKSPACE_ID
+
+claude = anthropic.Anthropic(
+    api_key=ANTHROPIC_API_KEY,
+    default_headers=headers
+)
 
 def extract_production_data_with_claude(pdf_url):
     logging.info(f"Processing PDF via Claude from URL: {pdf_url}")
@@ -55,12 +64,12 @@ def send_to_lovable_webhook(records):
             "source_url": record.get("source_url")
         })
         
-    headers = {
+    headers_req = {
         "Content-Type": "application/json",
         "x-ingestion-key": INGESTION_SECRET_KEY
     }
     
-    response = requests.post(APP_INGESTION_URL, json=payload, headers=headers)
+    response = requests.post(APP_INGESTION_URL, json=payload, headers=headers_req)
     
     if response.status_code == 200:
         logging.info("Successfully sent records to unverified_staging via Webhook!")
