@@ -14,7 +14,8 @@ import re
 import sys
 import time
 from datetime import datetime, timezone
-from urllib.parse import urljoin
+from collections import deque
+from urllib.parse import unquote, urldefrag, urljoin, urlparse
 
 import anthropic
 import requests
@@ -35,14 +36,19 @@ def _csv_env(name: str) -> list:
     return [v.strip() for v in os.environ.get(name, "").split(",") if v.strip()]
 
 
-# Source selection, in priority order:
-#   1. NUPRC_PDF_URLS       explicit PDF links (manual runs / backfills)
-#   2. NUPRC_LISTING_PAGES  NUPRC web pages to scan for production-report PDF links
-#   3. WordPress media API  search NUPRC's media library for production-report PDFs
+# Source selection:
+#   - NUPRC_PDF_URLS (manual input): direct .pdf links are processed as-is; any other
+#     link is treated as a listing page and crawled for PDFs.
+#   - Otherwise the crawler starts at the NUPRC reports archive and follows its sub-pages.
 MANUAL_PDF_URLS = _csv_env("NUPRC_PDF_URLS")
-NUPRC_LISTING_PAGES = _csv_env("NUPRC_LISTING_PAGES")
+NUPRC_REPORTS_INDEX = os.environ.get("NUPRC_REPORTS_INDEX", "").strip() or "https://www.nuprc.gov.ng/reports"
+NUPRC_LISTING_PAGES = _csv_env("NUPRC_LISTING_PAGES") or [NUPRC_REPORTS_INDEX]
 NUPRC_BASE_URL = (os.environ.get("NUPRC_BASE_URL", "").strip() or "https://www.nuprc.gov.ng").rstrip("/")
+NUPRC_REPORT_KEYWORDS = [k.lower() for k in _csv_env("NUPRC_REPORT_KEYWORDS")] or ["production"]
 NUPRC_MAX_REPORTS = int(os.environ.get("NUPRC_MAX_REPORTS", "").strip() or "1")
+NUPRC_CRAWL_DEPTH = int(os.environ.get("NUPRC_CRAWL_DEPTH", "").strip() or "2")
+NUPRC_MAX_PAGES = int(os.environ.get("NUPRC_MAX_PAGES", "").strip() or "60")
+USE_BROWSER = os.environ.get("USE_BROWSER", "1").strip().lower() in ("1", "true", "yes")
 DISCOVERY_KEYWORDS = ["production status report", "production report", "production"]
 DRY_RUN = os.environ.get("DRY_RUN", "").strip().lower() in ("1", "true", "yes")
 
@@ -134,89 +140,186 @@ Call the record_production_figures tool with your results."""
 # ---------------------------------------------------------------------------
 # Step 0: discover report URLs
 # ---------------------------------------------------------------------------
-_PDF_HREF_RE = re.compile(r"""href=["']([^"']+?\.pdf)(?:\?[^"']*)?["']""", re.IGNORECASE)
-_UPLOAD_DATE_RE = re.compile(r"/uploads/(\d{4})/(\d{2})/")
+_HREF_RE = re.compile(r"""(?:href|src|data-href|data-url|data-file)\s*=\s*["']([^"'#]+)""", re.IGNORECASE)
+# Catches PDF URLs embedded in scripts/JSON (e.g. "https:\/\/site\/file.pdf")
+_ABS_PDF_RE = re.compile(r"""https?:(?://|\\/\\/)[^\s"'<>()]+?\.pdf\b""", re.IGNORECASE)
+
+_MONTHS = {m: i for i, m in enumerate(
+    ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], start=1)}
+_MONTH_YEAR_RE = re.compile(r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s_\-.,]*((?:19|20)\d{2})")
+_YEAR_MONTH_RE = re.compile(r"((?:19|20)\d{2})[\s_\-./](0?[1-9]|1[0-2])(?!\d)")
+_YEAR_RE = re.compile(r"(?<!\d)((?:19|20)\d{2})(?!\d)")
 
 
-def _upload_sort_key(url: str) -> str:
-    """WordPress stores uploads under /uploads/YYYY/MM/, which is a good recency proxy."""
-    m = _UPLOAD_DATE_RE.search(url)
-    return f"{m.group(1)}-{m.group(2)}" if m else "0000-00"
+def _clean_url(raw: str) -> str:
+    return raw.replace("\\/", "/").replace("\\u002F", "/").replace("&amp;", "&").strip()
 
 
-def discover_via_listing_pages() -> list:
-    urls = []
-    for page in NUPRC_LISTING_PAGES:
-        try:
-            log.info(f"Scanning listing page: {page}")
-            r = requests.get(page, headers=HTTP_HEADERS, timeout=30)
-            r.raise_for_status()
-        except requests.RequestException as e:
-            log.warning(f"Could not load listing page {page}: {e}")
+def _is_pdf_link(url: str) -> bool:
+    return urlparse(url).path.lower().endswith(".pdf")
+
+
+def guess_report_period(url: str) -> str:
+    """Best-effort YYYY-MM from a file name or path, used to rank reports newest first."""
+    text = unquote(url).lower()
+    found = [f"{y}-{_MONTHS[m[:3]]:02d}" for m, y in _MONTH_YEAR_RE.findall(text)]
+    found += [f"{y}-{int(mo):02d}" for y, mo in _YEAR_MONTH_RE.findall(text)]
+    if found:
+        return max(found)
+    years = _YEAR_RE.findall(text)
+    return f"{max(years)}-00" if years else "0000-00"
+
+
+def extract_links(html: str, base_url: str):
+    pages, pdfs = set(), set()
+    for raw in _HREF_RE.findall(html):
+        url = urldefrag(urljoin(base_url, _clean_url(raw)))[0]
+        if not url.startswith("http"):
             continue
-        for href in _PDF_HREF_RE.findall(r.text):
-            full = urljoin(page, href)
-            if "production" in full.lower() and full not in urls:
-                urls.append(full)
-    return sorted(urls, key=_upload_sort_key, reverse=True)
+        (pdfs if _is_pdf_link(url) else pages).add(url)
+    for raw in _ABS_PDF_RE.findall(html):
+        pdfs.add(_clean_url(raw))
+    return pages, pdfs
+
+
+def fetch_html_static(url: str):
+    try:
+        r = requests.get(url, headers=HTTP_HEADERS, timeout=30)
+        r.raise_for_status()
+    except requests.RequestException as e:
+        log.warning(f"Could not load {url}: {e}")
+        return None
+    if "html" not in r.headers.get("Content-Type", "").lower():
+        return None
+    return r.text
+
+
+class BrowserFetcher:
+    """Headless Chromium for pages that load their report lists with JavaScript."""
+
+    def __enter__(self):
+        from playwright.sync_api import sync_playwright  # imported lazily; optional dependency
+        self._pw = sync_playwright().start()
+        self._browser = self._pw.chromium.launch()
+        self._page = self._browser.new_page(user_agent=HTTP_HEADERS["User-Agent"])
+        return self
+
+    def __call__(self, url: str):
+        try:
+            self._page.goto(url, wait_until="networkidle", timeout=45_000)
+            return self._page.content()
+        except Exception as e:
+            log.warning(f"Browser could not load {url}: {e}")
+            return None
+
+    def __exit__(self, *exc):
+        self._browser.close()
+        self._pw.stop()
+
+
+def crawl_for_pdfs(start_urls: list, fetch_html) -> dict:
+    """Breadth-first crawl limited to the start pages' host and path prefix. Returns {pdf_url: page_found_on}."""
+    hosts = {urlparse(u).netloc for u in start_urls}
+    prefixes = {urlparse(u).path.rstrip("/") or "/" for u in start_urls}
+    queue = deque((u, 0) for u in start_urls)
+    visited, found, seen_files = set(), {}, set()
+
+    while queue and len(visited) < NUPRC_MAX_PAGES:
+        url, depth = queue.popleft()
+        if url in visited:
+            continue
+        visited.add(url)
+        html = fetch_html(url)
+        if html is None:
+            continue
+        pages, pdfs = extract_links(html, url)
+        log.info(f"  scanned {url}: {len(pdfs)} PDF link(s)")
+        for pdf in pdfs:
+            key = urlparse(pdf)._replace(query="").geturl()  # same file with/without ?v=1
+            if key not in seen_files:
+                seen_files.add(key)
+                found[pdf] = url
+        if depth < NUPRC_CRAWL_DEPTH:
+            for link in sorted(pages):
+                parsed = urlparse(link)
+                if (parsed.netloc in hosts and link not in visited
+                        and any(parsed.path.startswith(p) for p in prefixes)):
+                    queue.append((link, depth + 1))
+
+    log.info(f"Crawl finished: {len(visited)} page(s) visited, {len(found)} PDF link(s) found.")
+    return found
+
+
+def filter_and_rank(found: dict) -> list:
+    """Keep PDFs whose URL or source page matches the report keywords; newest first."""
+    def is_match(pdf, page):
+        if any(k in unquote(pdf).lower() for k in NUPRC_REPORT_KEYWORDS):
+            return True
+        # File name lacks the keyword but sits on a matching report page: accept only if
+        # the file name looks dated (skips footer links such as privacy.pdf).
+        on_report_page = any(k in unquote(page).lower() for k in NUPRC_REPORT_KEYWORDS)
+        return on_report_page and guess_report_period(pdf) != "0000-00"
+
+    matches = [pdf for pdf, page in found.items() if is_match(pdf, page)]
+    return sorted(matches, key=lambda u: (guess_report_period(u), u), reverse=True)
 
 
 def discover_via_wp_media_api() -> list:
-    """NUPRC runs WordPress; its media library is often searchable via the public REST API."""
+    """Last-resort fallback: search a WordPress media library, if the site exposes one."""
     endpoint = f"{NUPRC_BASE_URL}/wp-json/wp/v2/media"
     for keyword in DISCOVERY_KEYWORDS:
         try:
-            r = requests.get(
-                endpoint,
-                params={"search": keyword, "mime_type": "application/pdf",
-                        "per_page": 30, "orderby": "date", "order": "desc"},
-                headers=HTTP_HEADERS,
-                timeout=30,
-            )
-        except requests.RequestException as e:
-            log.warning(f"WordPress media API unreachable: {e}")
+            r = requests.get(endpoint, params={"search": keyword, "mime_type": "application/pdf",
+                                               "per_page": 30, "orderby": "date", "order": "desc"},
+                             headers=HTTP_HEADERS, timeout=30)
+            items = r.json() if r.status_code == 200 else []
+        except (requests.RequestException, ValueError):
             return []
-        if r.status_code != 200:
-            log.warning(f"WordPress media API returned HTTP {r.status_code}; it may be disabled.")
-            return []
-        try:
-            items = r.json()
-        except ValueError:
-            log.warning("WordPress media API did not return JSON.")
-            return []
-
-        found = {}
-        for item in items if isinstance(items, list) else []:
-            url = item.get("source_url") or ""
-            title = (item.get("title") or {}).get("rendered", "")
-            if url.lower().endswith(".pdf") and "production" in f"{url} {title}".lower():
-                found[url] = item.get("date") or ""
-        if found:
-            log.info(f"Media API found {len(found)} candidate PDFs for '{keyword}'")
-            return sorted(found, key=found.get, reverse=True)
+        urls = [i.get("source_url", "") for i in items if isinstance(i, dict)]
+        urls = [u for u in urls if _is_pdf_link(u)]
+        if urls:
+            return urls
     return []
 
 
 def resolve_pdf_urls() -> list:
-    if MANUAL_PDF_URLS:
-        log.info(f"Using {len(MANUAL_PDF_URLS)} manually supplied PDF URL(s).")
-        return MANUAL_PDF_URLS
+    direct = [u for u in MANUAL_PDF_URLS if _is_pdf_link(u)]
+    manual_pages = [u for u in MANUAL_PDF_URLS if not _is_pdf_link(u)]
+    if direct and not manual_pages:
+        log.info(f"Using {len(direct)} manually supplied PDF link(s).")
+        return direct
 
-    candidates = discover_via_listing_pages() if NUPRC_LISTING_PAGES else []
-    if not candidates:
-        candidates = discover_via_wp_media_api()
+    start_pages = manual_pages or NUPRC_LISTING_PAGES
+    log.info(f"Crawling for reports from: {', '.join(start_pages)}")
+    log.info(f"Report keywords: {', '.join(NUPRC_REPORT_KEYWORDS)}")
+
+    candidates = filter_and_rank(crawl_for_pdfs(start_pages, fetch_html_static))
+
+    if not candidates and USE_BROWSER:
+        log.info("No PDFs in static HTML; retrying with a headless browser (JavaScript-rendered pages).")
+        try:
+            with BrowserFetcher() as browser:
+                candidates = filter_and_rank(crawl_for_pdfs(start_pages, browser))
+        except ImportError:
+            log.warning("Playwright is not installed; skipping browser crawl.")
+        except Exception as e:
+            log.warning(f"Browser crawl failed: {e}")
 
     if not candidates:
+        candidates = filter_and_rank({u: "" for u in discover_via_wp_media_api()})
+
+    if not candidates and not direct:
         raise RuntimeError(
-            "No production-report PDFs discovered. Find the report on nuprc.gov.ng and either "
-            "run the workflow manually with its PDF link, or set the NUPRC_LISTING_PAGES "
-            "repository variable to the page that lists the reports."
+            f"No PDFs matching {NUPRC_REPORT_KEYWORDS} found under {', '.join(start_pages)}. "
+            "Run with dry_run to see what the crawler visited, or paste a direct PDF link."
         )
 
-    for i, url in enumerate(candidates[:10], start=1):
-        log.info(f"  candidate {i}: {url}")
-    selected = candidates[:NUPRC_MAX_REPORTS]
-    log.info(f"Selected {len(selected)} most recent report(s).")
+    log.info(f"{len(candidates)} matching report(s) found. Newest first:")
+    for i, url in enumerate(candidates[:15], start=1):
+        log.info(f"  {i:>2}. [{guess_report_period(url)}] {url}")
+
+    selected = direct + candidates[:NUPRC_MAX_REPORTS]
+    log.info(f"Selected {len(selected)} report(s) for extraction.")
     return selected
 
 
