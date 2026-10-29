@@ -3,7 +3,7 @@ name: Automated Ingestion Pipeline
 on:
   schedule:
     - cron: '0 5 * * *'    # daily 06:00 WAT: news bulletin
-    - cron: '0 6 * * 1'    # Mondays 07:00 WAT: NUPRC production + NOSDRA spills
+    - cron: '0 6 * * 1'    # Mondays 07:00 WAT: NUPRC production, NOSDRA spills, NMDPRA reports
     - cron: '0 7 1 * *'    # 1st of each month 08:00 WAT: licence register (OMLs)
   push:
     branches: [main]
@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       collectors:
-        description: 'Collectors to run: all, or a comma list of nuprc, nosdra, news, assets, reference'
+        description: 'Collectors to run: all, or a comma list of nuprc, nosdra, nmdpra, news, assets, reference'
         required: false
         default: 'all'
       dry_run:
@@ -69,14 +69,14 @@ jobs:
             schedule)
               case "$SCHEDULE" in
                 '0 5 * * *') LIST="news" ;;
-                '0 6 * * 1') LIST="nuprc,nosdra" ;;
+                '0 6 * * 1') LIST="nuprc,nosdra,nmdpra" ;;
                 '0 7 1 * *') LIST="assets" ;;
                 *)           LIST="" ;;
               esac ;;
           esac
           echo "Collectors: $LIST"
           echo "list=$LIST" >> "$GITHUB_OUTPUT"
-          if echo "$LIST" | grep -qE 'all|nuprc|nosdra|news|assets'; then echo "browser=1" >> "$GITHUB_OUTPUT"; fi
+          if echo "$LIST" | grep -qE 'all|nuprc|nosdra|nmdpra|news|assets'; then echo "browser=1" >> "$GITHUB_OUTPUT"; fi
 
       - name: Install headless browser (for JavaScript-rendered sites)
         if: steps.pick.outputs.browser == '1'
