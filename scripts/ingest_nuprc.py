@@ -638,6 +638,10 @@ def send_to_lovable_webhook(records: list, attempts: int = 3) -> None:
 def process_url(url: str) -> int:
     pdf_bytes = download_pdf(url)
     sha = hashlib.sha256(pdf_bytes).hexdigest()
+    import pipeline_common as pc
+    if pc.already_seen(source_sha256=sha):
+        log.info(f"Already received this exact report (sha256 {sha[:12]}...); skipping.")
+        return 0
     summary, rows = extract_with_claude(build_document_block(pdf_bytes))
     records = expand_rows(rows, url, sha, summary.get("title") or "")
     log.info(f"Claude returned {len(rows)} table rows -> {len(records)} monthly records")

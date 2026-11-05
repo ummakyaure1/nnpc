@@ -107,10 +107,25 @@ def from_site(src: dict) -> list:
     links = pc.crawl_with_fallback(src["start_urls"], lambda u: on_site(u) and bool(pattern.search(u)),
                                    wanted, max_pages=15, depth=1)
     items = [{"url": u, "title": v["text"], "source": src["name"], "regulator": src.get("regulator"),
-              "published": None}
+              "published": date_in_text(v["text"])}
              for u, v in links.items() if wanted(u, v) and pc.file_ext(u) in ("", "html", "htm", "php", "aspx")]
     log.info(f"Site {src['name']}: {len(items)} candidate article(s)")
     return items
+
+
+_TEXT_DATE_RE = re.compile(r"(january|february|march|april|may|june|july|august|september|october|november|december)"
+                           r"\s+(\d{1,2}),?\s+((?:19|20)\d{2})", re.IGNORECASE)
+
+
+def date_in_text(text: str):
+    """Dates written in link text, e.g. 'OCTOBER 16, 2026 PRESS RELEASE: ...'."""
+    m = _TEXT_DATE_RE.search(text or "")
+    if not m:
+        return None
+    try:
+        return datetime.strptime(f"{m.group(1)} {m.group(2)} {m.group(3)}", "%B %d %Y").replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
 
 
 def page_date(html: str):
@@ -135,6 +150,8 @@ def page_date(html: str):
 # Processing
 # ---------------------------------------------------------------------------
 def process_article(item: dict, cfg: dict, cutoff: datetime):
+    if item["published"] and item["published"].replace(tzinfo=item["published"].tzinfo or timezone.utc) < cutoff:
+        return None, []
     resp = pc.fetch(item["url"], attempts=2, timeout=30)
     if "html" not in resp.headers.get("Content-Type", "").lower():
         return None, []
@@ -235,6 +252,8 @@ def main() -> int:
 
     news, facts, failures = [], [], 0
     for item in unique[:limit]:
+        if pc.already_seen(dedupe_key=pc.make_key("news", item["url"].split("#")[0].rstrip("/"))):
+            continue
         try:
             n, f = process_article(item, cfg, cutoff)
         except Exception as e:

@@ -445,6 +445,31 @@ def post_staging(target_table: str, items: list, collector: str, attempts: int =
     return len(payload)
 
 
+FORCE_REPROCESS = env("FORCE_REPROCESS").lower() in ("1", "true", "yes")
+_SEEN_WARNED = False
+
+
+def already_seen(dedupe_key: str | None = None, source_sha256: str | None = None) -> bool:
+    """True if the app already holds a staging row (any status) with this dedupe_key or
+    source document fingerprint. Used to skip re-reading documents and save AI calls.
+    Fails open: if the check is unavailable, the item is processed as normal."""
+    global _SEEN_WARNED
+    if FORCE_REPROCESS or not (dedupe_key or source_sha256):
+        return False
+    params = {k: v for k, v in (("dedupe_key", dedupe_key), ("source_sha256", source_sha256)) if v}
+    try:
+        r = SESSION.get(APP_INGESTION_URL.rstrip("/") + "/seen", params=params,
+                        headers={"x-ingestion-key": INGESTION_SECRET_KEY}, timeout=20)
+        if r.status_code == 200:
+            return bool(r.json().get("seen"))
+        raise RuntimeError(f"HTTP {r.status_code}")
+    except Exception as e:
+        if not _SEEN_WARNED:
+            log.warning(f"'Already received' check unavailable ({e}); processing everything this run.")
+            _SEEN_WARNED = True
+        return False
+
+
 def write_summary(markdown: str) -> None:
     """Shows on the GitHub Actions run page."""
     path = os.environ.get("GITHUB_STEP_SUMMARY")

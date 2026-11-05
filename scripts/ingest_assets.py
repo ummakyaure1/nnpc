@@ -97,14 +97,26 @@ def process_report(url: str, scope: str) -> tuple:
     pdf = pc.fetch_pdf(url)
     text = pc.pdf_text(pdf)
     sha = hashlib.sha256(pdf).hexdigest()
+    if pc.already_seen(source_sha256=sha):
+        log.info(f"  already received this exact report (sha256 {sha[:12]}...); skipping.")
+        return [], []
     focus = ("Only record rows for these titles: " + ", ".join(pc.TARGET_ASSETS)) if scope == "pilots" \
         else "Record every licence row."
-    out = pc.call_tool(
-        "You transcribe licence registers exactly as printed. Never add facts from your own knowledge; "
-        "use null when a value is not printed.",
-        [pc.pdf_document_block(pdf), {"type": "text", "text": f"{focus}\nCopy each row's text as evidence."}],
-        TITLES_TOOL)
-    log.info(f"  report: {out.get('report_title')} | as of {out.get('as_of')} | {len(out.get('rows') or [])} row(s)")
+    out = {"report_title": None, "as_of": None, "rows": []}
+    for first_page, part in pc.pdf_chunks(pdf):
+        res = pc.call_tool(
+            "You transcribe licence registers exactly as printed. Never add facts from your own knowledge; "
+            "use null when a value is not printed.",
+            [pc.pdf_document_block(part), {"type": "text", "text": f"{focus}\nCopy each row's text as evidence. "
+                                           "Page numbers are relative to this document."}],
+            TITLES_TOOL)
+        out["report_title"] = out["report_title"] or res.get("report_title")
+        out["as_of"] = out["as_of"] or res.get("as_of")
+        for row in res.get("rows") or []:
+            if isinstance(row.get("page"), int):
+                row["page"] += first_page - 1
+            out["rows"].append(row)
+    log.info(f"  report: {out.get('report_title')} | as of {out.get('as_of')} | {len(out['rows'])} row(s)")
 
     assets, partners = [], []
     for row in out.get("rows") or []:
