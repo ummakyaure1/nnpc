@@ -1,0 +1,170 @@
+{
+  "_note": "Edit this file to add or change sources. Start URLs marked 'verify' have not been confirmed yet: run the collector with dry_run and check the log.",
+  "news": {
+    "lookback_days": 4,
+    "max_articles_per_run": 30,
+    "keywords": [
+      "oil",
+      "gas",
+      "crude",
+      "condensate",
+      "OML",
+      "OPL",
+      "PML",
+      "PPL",
+      "NUPRC",
+      "NNPC",
+      "spill",
+      "pipeline",
+      "terminal",
+      "licence",
+      "license",
+      "lease",
+      "divest",
+      "acquisition",
+      "upstream",
+      "barrels",
+      "bopd",
+      "flare",
+      "host community",
+      "HCDT"
+    ],
+    "sources": [
+      {
+        "name": "NUPRC",
+        "regulator": "NUPRC",
+        "start_urls": [
+          "https://www.nuprc.gov.ng/"
+        ],
+        "article_url_pattern": "/media/news/",
+        "verify": false
+      },
+      {
+        "name": "NNPC Ltd",
+        "regulator": "NNPC",
+        "start_urls": [
+          "https://nnpcgroup.com/"
+        ],
+        "article_url_pattern": "/(insights/press-release|news|newsroom)",
+        "verify": false
+      }
+    ],
+    "rss_feeds": []
+  },
+  "nosdra": {
+    "api_url": "https://nosdra.oilspillmonitor.ng/osm-2019/api/spill-data.php?dataset=nosdra&format=json",
+    "public_page": "https://nosdra.oilspillmonitor.ng/oilspillmonitor.html",
+    "volume_unit": "bbl",
+    "_volume_unit_note": "Confirm on the Oil Spill Monitor that 'estimated quantity' is in barrels; the value as reported is always kept too.",
+    "lookback_days": 60,
+    "start_urls": [
+      "https://nosdra.oilspillmonitor.ng/oilspillmonitor.html"
+    ],
+    "data_file_extensions": [
+      "csv",
+      "xlsx",
+      "xls",
+      "json",
+      "pdf"
+    ],
+    "keywords": [
+      "spill",
+      "incident",
+      "jiv",
+      "query",
+      "feature",
+      "data",
+      "download",
+      "export"
+    ],
+    "exclude_words": [
+      "guide",
+      "training",
+      "manual",
+      "brochure"
+    ],
+    "max_files_per_run": 8
+  },
+  "assets": {
+    "scope": "pilots",
+    "reports_index": "https://www.nuprc.gov.ng/reports",
+    "report_keywords": [
+      "acreage",
+      "concession",
+      "licen",
+      "lease"
+    ],
+    "max_reports_per_series": 1
+  },
+  "reference": {
+    "folder": "data/reference",
+    "title_properties": [
+      "title",
+      "TITLE",
+      "title_number",
+      "OML",
+      "BLOCK",
+      "Block",
+      "NAME",
+      "Name",
+      "name"
+    ]
+  },
+  "nmdpra": {
+    "_note": "stage=true sends the newest documents to the MD bulletin; stage=false only lists them in the log.",
+    "api_url": "https://www.nmdpra.gov.ng/api/General/Getdocuments",
+    "max_docs_per_page": 2,
+    "pages": [
+      {
+        "name": "Natural Gas Report",
+        "url": "https://www.nmdpra.gov.ng/NaturalGasReport",
+        "categories": [
+          "Natural Gas Report"
+        ],
+        "stage": true
+      },
+      {
+        "name": "Oil & Gas Data",
+        "url": "https://www.nmdpra.gov.ng/OilGasData",
+        "categories": [
+          "Statistics"
+        ],
+        "stage": true
+      },
+      {
+        "name": "Annual Reports",
+        "url": "https://www.nmdpra.gov.ng/AnnualReports",
+        "categories": [
+          "Annual Report",
+          "Annual Reports",
+          "AnnualReport"
+        ],
+        "stage": true
+      },
+      {
+        "name": "Vessel Schedule",
+        "url": "https://www.nmdpra.gov.ng/VesselSchedule",
+        "categories": [
+          "Vessel Schedule"
+        ],
+        "stage": false
+      },
+      {
+        "name": "Daily Truck-out",
+        "url": "https://www.nmdpra.gov.ng/DailyTruckout",
+        "categories": [
+          "Daily Truckout"
+        ],
+        "stage": false
+      },
+      {
+        "name": "Stock Report",
+        "url": "https://www.nmdpra.gov.ng/StockReport",
+        "categories": [
+          "Stock Sufficiency Report"
+        ],
+        "stage": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "publisher": "Who published the file, e.g. NUPRC",
+  "title": "Document or dataset name",
+  "url": "Where it was obtained (link), or a description if from a licensed dataset",
+  "retrieved_date": "YYYY-MM-DD",
+  "licence_terms": "Any redistribution limits"
+}
