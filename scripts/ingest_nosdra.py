@@ -8,6 +8,7 @@ field; every row is then converted by code, so figures never pass through the AI
 """
 import io
 import json
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 
@@ -72,8 +73,19 @@ TYPE_WORDS = {"sabotage": "sabotage", "vandal": "sabotage", "theft": "sabotage",
               "corrosion": "spill", "equipment": "spill", "operational": "spill", "spill": "spill"}
 
 
+# Short cause codes used by the NOSDRA Oil Spill Monitor (as understood; the code as reported is always kept).
+CAUSE_CODES = {"sab": "Sabotage/theft", "cor": "Corrosion", "eqf": "Equipment failure",
+               "ome": "Operational/maintenance error", "ytd": "Yet to be determined",
+               "mys": "Mystery spill", "oth": "Other"}
+
+
+def cause_label(cause) -> str | None:
+    c = str(cause or "").strip().lower()
+    return CAUSE_CODES.get(c) or (str(cause).strip() if c else None)
+
+
 def classify(cause: str) -> str:
-    c = (cause or "").lower()
+    c = (cause_label(cause) or "").lower()
     return next((v for k, v in TYPE_WORDS.items() if k in c), "spill")
 
 
@@ -108,6 +120,7 @@ def to_record(row: dict, unit: str | None, source_url: str, evidence: str) -> di
         "incident_date": date,
         "incident_type": classify(row.get("cause") or row.get("incident_type")),
         "cause_as_reported": row.get("cause") or row.get("incident_type"),
+        "cause": cause_label(row.get("cause") or row.get("incident_type")),
         "operator": row.get("company"),
         "facility_name": row.get("facility_name"),
         "latitude": lat, "longitude": lon,
@@ -128,6 +141,8 @@ def to_record(row: dict, unit: str | None, source_url: str, evidence: str) -> di
 def parse_date(value, day_first: bool):
     if value in (None, "") or (isinstance(value, float) and pd.isna(value)):
         return None
+    if isinstance(value, str) and re.match(r"^\s*\d{4}-\d{1,2}-\d{1,2}", value):  # ISO: year first
+        day_first = False
     if isinstance(value, (int, float)) and value > 1e11:      # map services send epoch milliseconds
         ts = pd.to_datetime(value, unit="ms", errors="coerce")
     elif isinstance(value, (int, float)) and value > 1e8:     # epoch seconds
@@ -265,17 +280,76 @@ def process_pdf(pdf_bytes: bytes, source_url: str, cutoff) -> list:
     return records
 
 
+# ---------------------------------------------------------------------------
+# NOSDRA Oil Spill Monitor API (preferred: direct, no browser, no AI)
+# ---------------------------------------------------------------------------
+API_FIELDS = {  # our field -> Oil Spill Monitor column
+    "incident_ref": "incidentnumber", "incident_date": "incidentdate", "company": "company",
+    "facility_name": "sitelocationname", "latitude": "latitude", "longitude": "longitude",
+    "state": "statesaffected", "cause": "cause", "volume": "estimatedquantity",
+}
+API_EXTRAS = {"status": "status_as_reported", "contaminant": "contaminant",
+              "spillareahabitat": "habitat", "id": "nosdra_id"}
+
+
+def process_api(cfg: dict, cutoff: str) -> list:
+    url = cfg["api_url"]
+    log.info(f"Reading NOSDRA API: {url}")
+    df = json_to_frame(json.loads(pc.fetch(url, timeout=180).content.decode("utf-8", "ignore")))
+    missing = [c for c in API_FIELDS.values() if c not in df.columns]
+    if missing:
+        raise RuntimeError(f"The NOSDRA API columns have changed (missing {missing}); columns now: {list(df.columns)}")
+    log.info(f"API returned {len(df)} spill record(s)")
+    page = cfg.get("public_page", url)
+    records, dates = [], []
+    for _, r in df.iterrows():
+        row = {f: (None if pd.isna(r[c]) else r[c]) for f, c in API_FIELDS.items()}
+        row["incident_date"] = parse_date(row["incident_date"], True)
+        if row["incident_date"]:
+            dates.append(row["incident_date"])
+        if not row["incident_date"] or row["incident_date"] < cutoff:
+            continue
+        evidence = "; ".join(f"{c}={r[c]}" for c in ["id", *API_FIELDS.values()] if c in df.columns and not pd.isna(r[c]))
+        rec = to_record(row, cfg.get("volume_unit"), page, evidence)
+        if not rec:
+            continue
+        for col, name in API_EXTRAS.items():
+            if col in df.columns and not pd.isna(r[col]):
+                rec["proposed_data"][name] = r[col] if not hasattr(r[col], "item") else r[col].item()
+        rec["proposed_data"]["api_url"] = url
+        rec["dedupe_key"] = pc.make_key("incident", "nosdra", r.get("id"), row.get("incident_ref"),
+                                        r.get("status"), row.get("volume"), row.get("cause"))
+        records.append(rec)
+    if dates:
+        log.info(f"Incident dates in the API run from {min(dates)} to {max(dates)}; "
+                 f"{len(records)} fall on or after {cutoff}.")
+    return records
+
+
 def main() -> int:
     if not pc.check_env():
         return 1
     cfg = pc.load_config()["nosdra"]
     cutoff = (datetime.now(timezone.utc) - timedelta(days=int(cfg.get("lookback_days", 60)))).date().isoformat()
+    if cfg.get("api_url"):
+        try:
+            unique = list({r["dedupe_key"]: r for r in process_api(cfg, cutoff)}.values())
+            pc.post_staging("incident", unique, COLLECTOR)
+            pc.write_summary(f"### NOSDRA\n- Source: Oil Spill Monitor API\n- Incidents proposed (since {cutoff}): {len(unique)}")
+            log.info(f"NOSDRA done: {len(unique)} incident(s) since {cutoff}.")
+            return 0
+        except Exception as e:
+            log.warning(f"NOSDRA API failed ({e}); falling back to page discovery.")
+
     exts = set(cfg["data_file_extensions"])
     kws = [k.lower() for k in cfg["keywords"]]
     on_site = pc.same_site(cfg["start_urls"])
 
+    excluded = [w.lower() for w in cfg.get("exclude_words", [])]
+
     def wanted(url, v):
-        return pc.file_ext(url) in exts and any(k in f"{url} {v['text']}".lower() for k in kws)
+        text = f"{url} {v['text']}".lower()
+        return pc.file_ext(url) in exts and any(k in text for k in kws) and not any(w in text for w in excluded)
 
     links = pc.crawl_with_fallback(cfg["start_urls"], on_site, wanted, max_pages=25, depth=2)
     files = [u for u, v in links.items() if wanted(u, v)]
