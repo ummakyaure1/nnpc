@@ -20,6 +20,7 @@ import pipeline_common as pc
 log = pc.log
 COLLECTOR = "nmdpra"
 SITE = "https://www.nmdpra.gov.ng/"
+DEFAULT_API = "https://www.nmdpra.gov.ng/api/General/Getdocuments"
 
 SUMMARY_TOOL = {
     "name": "summarise_report",
@@ -137,7 +138,13 @@ def build_item(page: dict, d: dict) -> dict:
 def main() -> int:
     if not pc.check_env():
         return 1
-    cfg = pc.load_config()["nmdpra"]
+    cfg = pc.load_config().get("nmdpra") or {}
+    if not cfg.get("api_url"):
+        log.warning("sources.json has no NMDPRA feed address; using the default. Upload the latest sources.json.")
+    api_url = cfg.get("api_url") or DEFAULT_API
+    if not cfg.get("pages"):
+        log.error("sources.json has no NMDPRA pages configured. Upload the latest sources.json.")
+        return 1
     per_page = int(cfg.get("max_docs_per_page", 2))
     items, failures, lines = [], 0, []
 
@@ -145,14 +152,14 @@ def main() -> int:
         log.info(f"----- {page['name']}")
         docs, used = [], None
         for cat in page.get("categories", []):
-            docs = fetch_category(cfg["api_url"], cat)
+            docs = fetch_category(api_url, cat)
             if docs:
                 used = cat
                 break
         if not docs and pc.USE_BROWSER:
             cat = discover_category(page["url"])
             if cat:
-                docs, used = fetch_category(cfg["api_url"], cat), cat
+                docs, used = fetch_category(api_url, cat), cat
         docs = sorted((d for d in docs if isinstance(d, dict) and usable(d)),
                       key=lambda d: doc_date(d) or pd.Timestamp(0, tz="UTC"), reverse=True)
         log.info(f"  feed '{used}': {len(docs)} downloadable document(s)")
