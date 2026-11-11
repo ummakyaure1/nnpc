@@ -132,8 +132,12 @@ def boundary_items(feats, src, rel, cfg, scope) -> list:
         if not inside_nigeria(g):
             log.warning(f"  {rel}: {title} falls outside Nigeria after conversion; check the coordinate system")
             continue
+        extra = {k: props[k] for k in ("operator_as_of_2022", "area_km2_approx", "accuracy", "as_of", "licensed")
+                 if k in props}
         items.append({"proposed_data": {"title_number": title, "is_target_asset": title in pc.TARGET_ASSETS,
-                                        "boundary": g, "file": rel, "source": src, "suggested_grade": "A"},
+                                        "boundary": g, "file": rel, "source": src,
+                                        "suggested_grade": "B" if src.get("licensed") or props.get("accuracy") else "A",
+                                        **extra},
                       "source_url": src.get("url"),
                       "dedupe_key": pc.make_key("boundary", title, json.dumps(g, sort_keys=True))})
     return items
@@ -169,18 +173,42 @@ def pipeline_items(feats, src, rel) -> list:
     return items
 
 
+def alias_items(path, src, rel, scope) -> list:
+    """CSV with title_number, alias, alias_type, ambiguous (optional), as_of (optional)."""
+    items = []
+    with open(path, encoding="utf-8-sig") as f:
+        for r in csv.DictReader(f):
+            title = pc.normalise_title(r.get("title_number"))
+            alias = (r.get("alias") or "").strip()
+            if not title or len(alias) < 3:
+                continue
+            if scope == "pilots" and title not in pc.TARGET_ASSETS:
+                continue
+            data = {"title_number": title, "is_target_asset": title in pc.TARGET_ASSETS, "alias": alias,
+                    "alias_type": (r.get("alias_type") or "field").strip().lower(),
+                    "ambiguous": str(r.get("ambiguous", "")).strip().lower() == "true",
+                    "as_of": r.get("as_of") or None, "file": rel, "source": src, "suggested_grade": "B"}
+            items.append({"proposed_data": data, "source_url": src.get("url"),
+                          "dedupe_key": pc.make_key("alias", title, alias.lower())})
+    return items
+
+
 def main() -> int:
     if not pc.check_env(need_claude=False):
         return 1
     config = pc.load_config()
     cfg, scope = config["reference"], config["assets"].get("scope", "pilots")
     base = os.path.join(ROOT, cfg["folder"])
-    kinds = {"boundaries": ("asset_boundary", None), "facilities": ("facility", None), "pipelines": ("pipeline", None)}
+    kinds = {"boundaries": ("asset_boundary", None), "facilities": ("facility", None),
+             "pipelines": ("pipeline", None), "aliases": ("asset_alias", None)}
+    alias_scope = cfg.get("alias_scope", "all")
     totals = {}
     for kind, (target, _) in kinds.items():
         folder = os.path.join(base, kind)
         if not os.path.isdir(folder):
             continue
+        if not [n for n in os.listdir(folder) if n != "source.json" and not n.endswith(".example")]:
+            continue  # nothing to send yet
         src = load_source(folder)
         if not src:
             continue
@@ -189,6 +217,14 @@ def main() -> int:
             if name == "source.json":
                 continue
             path, rel = os.path.join(folder, name), f"{cfg['folder']}/{kind}/{name}"
+            if name.endswith(".example"):
+                continue
+            if kind == "aliases":
+                if name.lower().endswith(".csv"):
+                    found = alias_items(path, src, rel, alias_scope)
+                    log.info(f"{rel}: {len(found)} alias(es)")
+                    items += found
+                continue
             try:
                 feats = read_features(path)
             except Exception as e:
