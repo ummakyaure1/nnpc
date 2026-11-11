@@ -1,0 +1,634 @@
+title_number,alias,alias_type,ambiguous,source,as_of
+OML 4,Elegbe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 4,Elegbe 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 4,Oben North,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Afam,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Akuba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Alakir I East,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Alakir I East 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Asara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Banghan,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Banghan 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Baniele,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Baniele 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Bodo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Bodo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Bodo West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Bomu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Bonny,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Bonnyn,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Chobie,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Chobie 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Ebubu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Hugues Channel,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Hugues Channel 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Imo River,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Is Imir I,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Korokoro,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Matoru,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Ngboko,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Ngboko 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,North 1,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Obeakpu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Obigbo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Obigbo North,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Obuzo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Obuzo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Ohuru,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Ohuru 3,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Okoloma,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Okoloma 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Onne,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Opobo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Opobo South,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Teeba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Teeba 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Umuosi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Uzuaku,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Uzuaku 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Yokuru,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Yokuru 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 11,Yorla,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Agbada,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Ajokpori,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Akpor,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Apara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Elelenwa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Is Oba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Is Oba 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Iz Omini,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Iz Omini 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Nkali,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Ogbodo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Ogbodo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Otamini,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Ubima,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Umuanwa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Umuanwa 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 17,Umuechem,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 18,Akaso,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 18,Alakir I,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 18,Asarit Oru,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 18,Buguma Creek,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 18,Cawthorne,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 18,Jokka,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 18,Krakama,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 18,Orubir I,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 20,Akri,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 20,Egbema,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 20,Egbema W,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 20,Oforola,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 20,Oforola 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 20,Ugada,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Ahia,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Amapu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Amapu 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Assa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Awara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Awara 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Ibewa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Nkis A,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Nkis A 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Sombreir O River,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 21,Sombreir O River 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 22,Alimini,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 22,Alimini 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 22,Enwhe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 22,Mini Nta,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 22,Obele,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 22,Olo W. 2St,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 22,Olo W. 2St 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 22,Rumuekpe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 22,Ubie,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 23,Egbolom,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 23,Egbolom 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 23,Soku,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 25,Belema-Belema North,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 25,Olua,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 25,Olua 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Aboh,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Aboh 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Is Oko,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Ogbogu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Ogbogu 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Ogini,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Onit E,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Onit E 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Otovo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Otovo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 26,Ozoro,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 27,Adibawa Ne,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Abasare,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Abasare 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Agberi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Agberi 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Etelebou,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Gbaran,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Kolo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Manuso,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Manuso 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 28,Zarama,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 29,Kugbo West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 29,Kugbo West 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 29,Okoroba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 29,Okoroba 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 29,Oloibir I,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 29,Santa Barbara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Afiesere,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Eriemu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Evwreni,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Kokori,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Okpolo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Okpolo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Olomoro,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Oroni,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Osioka,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Oweh,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Urhure,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Urhure 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 30,Uzere,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 32,Afuo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 32,Diebu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 32,Egbomie,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 32,Egbomie 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 32,Emette,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 32,Emette 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 32,Nun River,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 32,Osiama Creek,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 32,Pir Igbene,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 33,Bubouwe Bou,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 33,Bubouwe Bou 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 33,Elepa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 33,Elepa 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 33,Walterkir I,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 33,Walterkir I 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Effurun,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Effurun 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Ekokor,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Ekokors,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Ekokors. 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Orho,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Orho 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Ughelli East,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Ughelli West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Utorogu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Warri River,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 34,Warri River 5,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Ajatit On,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Angalalei,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Angalalei 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Benis Ede,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Bomadi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Bomadi 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Dodo North,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Dodo North 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Is Eni,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Is Eni 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Kanbo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Odon,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Odon 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Ogara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Ogara 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Opomoyo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Orubou,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Orubou 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Uduere,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 35,Uduere 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 36,Opugbene,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 36,Opugbene 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 36,Tebidaba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Amoji,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Amoji 1B,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Amukpe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Asuokpu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Asuokpu 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Egbaoma,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Jatumi East,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Jatumi East 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Mosogar,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Mosogar 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Oben,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Ogegere,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Ogegere 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Okoporo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Okoporo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Okwefe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Okwefe 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Olokun,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Olokun 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Omoja,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Omoja 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Ookporhuru,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Oriomu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Oriomu 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Orogho,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 38,Ovhor,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Abiala,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Abiala 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Adagbassa Creek,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Adagbassa Creek 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Benin River,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Gbetiokun,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Opuama,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Tongarafa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Tongarafa 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Ugbo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 40,Ugbo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 41,Ovhor,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 41,Sapele,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 41,Ubaleme,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 41,Ubaleme 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Ajuju,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Atamba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Bamiene,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Bamiene 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Batan,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Egwa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Ir Igbo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Ir Igbo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Odidi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Ogbanabou,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Ogbanabou 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Okpoko S,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Okpoko S. 1Bis,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Rapele,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 42,Warri River,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Afremo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Elolo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Elolo 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Escravos,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Forcados,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Kukaku,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Kukaku 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Otumara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Saghara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 43,Yokri,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 46,Akono,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 46,Korolei,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 46,Ogbotobo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 46,Ramos River,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 46,Ramos River 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 46,Tunu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Abigborodo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Abit Eye,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Bella,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Delt A S,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Dibi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Ewan,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Gbokoda,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Is An,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Jones Creek,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Kit O,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Makaraba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Mejo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Obodo-Jatumi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Oghareki,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Oghareki 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Okpoko,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Oloye,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Olure,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Olure 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Opuekeba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 49,Utonana,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 52,Tubu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 52,Tubu 1X,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 58,Ebegoro S,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 58,Erema,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 58,Erema W,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 58,Obagi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 58,Ubeta,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Adibawa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Bede,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Bis Eni - Samabri East,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,East 1,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Ebocha,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Ir Ri,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Obiafu-Obrik Om,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Ogbogene,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Ogbogene W,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Omoku,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Omoku West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Oshi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Samabri,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Samabri 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Taylor,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Umuoru,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 61,Uzere East,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Azuzuama,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Clough Creek,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Diebu Creek,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,East 1,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Igbomotoru,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Kabiama,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Kabiama 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Nimbe South,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,North 1,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Obama,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Ogbainbir I,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Opukushi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Pir Igbene,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Seibou,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,Sengana River,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 63,South-East,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 64,Ubefan,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 65,Abura,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 65,Adein Zigaziga,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 65,Adein Zigaziga 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 65,North 1,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 65,Osioka,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 65,Owopele,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 65,Owopele 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Abang,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Adua,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Adua Y,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Asabo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Asabo D,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Ebiy A,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Ebiy A 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Ekpe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Ekpe W,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Ekpe W. 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Emiang,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Emiang 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Enang,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Enang W,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Ibom,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Ibom 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Nkop,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Nkop 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Nsimbo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Oyot,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Udara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Udara 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Udibe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Udibe 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Usari,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 70,Utai,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 77,Hobobo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 77,Hobobo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 79,Egbelle,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 79,Egbelle 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 79,Ehuru,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 79,Ehuru 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 79,Erukuku,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 79,Erukuku 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 85,Madu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 86,Obra,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 86,Obra 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 86,Okubie,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 86,Sengana,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 89,Obokun,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 90,Awodi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 90,Awodi 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 90,Mefa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 90,Meji,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 90,Okan,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 91,Sonam,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Bit A,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Bit A 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Delta,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Malu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Meren,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Mina,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Nedum,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Nedum 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Okagba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Opolo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Parabe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Ruta,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Ruta 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 95,Tapa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 96,Gilli,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 96,Ovia,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 98,Ogharefe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 98,Ologbo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 98,Ossiomo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 99,Ik Ik E,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Akamba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Akamba 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Asasa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Eben Ax,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Emem,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Emem 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Esuk,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Esuk 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Inuen,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Is Onsi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Is Onsi 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Nsis Ong,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Nsis Ong 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Ofon,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Siphon,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Siphon 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Udiana,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 102,Udiana 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 103,Ebis An,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 103,Ojumole,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 103,Omuro,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 103,Polobo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 103,Polobo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Aran,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Awawa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Edik An,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Mbara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Mbara 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Nkere,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Nkere 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Pegi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Pegi 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Udeme,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Udeme 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Ufan,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Ufan 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Utip,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Utip 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 104,Yoho,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 109,Kaka,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 109,Kaka 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 109,Offe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 109,Offe 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 109,Ogedeh,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 109,Ogedeh 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 111,Aroh,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 111,Aroh 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 111,Oredo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 111,Oziengbe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 114,Abana-Efiat,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 114,Obio,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 114,Obio 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 116,Agbara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 116,Bala,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 118,Bonga,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 118,Bonga North West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 118,Bonga South West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 118,Bonga South West 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 118,North 1,field,true,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 120,Oyo North West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 120,Oyo North West 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 121,Ebolibo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 121,Ebolibo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 122,Bilabri-Orobir I,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 124,Iz Ombe,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 124,Njaba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 124,Njaba 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 124,Oguta,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 124,Ossu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 124,Uta 1X,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 126,Nkelua,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 126,Okwori,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 127,Agbami,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 127,Ik Ija,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 127,Ik Ija 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 129,Bilah,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 129,Bilah 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 129,Sehki,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 129,Sehki 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 130,Akpo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 130,Egina,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 130,Egina South,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 130,Egina South 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 130,Preowei,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 130,Preowei 1B,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 131,Chota,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 131,Chota 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 131,Ebit Emi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 131,Ebit Emi 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 132,Aparo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 132,Aparo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 133,Bosi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 133,Bosi 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 133,Erha,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 133,Erha North,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 134,Engule,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 134,Engule 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 134,Oberan,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 134,Oberan 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 135,Bolia,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 135,Bolia 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 135,Golo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 135,Golo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 135,Nnwa-Doro,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 136,Agge,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 136,Agge 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 136,Akarino,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 136,Akarino 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 136,Amatu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 136,Amatu 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Abaji,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Asanga,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Asanga 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Asanga 3A,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Odum,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Odum 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Okolo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Okolo 1X,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Toriy E,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Toriy E 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Udele,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Udele 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 137,Udele East,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 138,Efere,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 138,Efere 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 138,Usan,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 138,Usan West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 139,Okpok,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 139,Okpok 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 139,Ukot,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 139,Ukot 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 139,Utine,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 139,Utine 1St,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 140,Nsik O,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 140,Nsik O 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 140,Nsik O North,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 140,Nsik O North 1X,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 140,Ofigbo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 140,Ofigbo 1X,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 142,Adolo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 142,Asaboro South,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 142,Erimwindu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 142,Ona North East,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 142,Otien,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 142,Otien 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 143,Anieze,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 143,Benik U,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 143,Okwuibome,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 145,Orso,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 145,Orso 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 148,Oluegi,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 148,Oluegi 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 148,Pologbene,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 148,Pologbene 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 148,Tonjor,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 148,Tonjor 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 148,Tsekelewu,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OML 148,Tsekelewu 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 204,Gilli Gilli,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 208,Alaoma,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 208,Alaoma 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 215,Egere,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 215,Egere 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 223,Ebwa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 223,Ebwa 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 223,Owowo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 223,Owowo West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 223,Owowo West 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 223,South B-1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 227,Abara,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 227,Abara 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 227,Akepo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 227,Oma North,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 241,Epiy A,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 241,Epiy A 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 242,Opukir I,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 242,Opukir I 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 245,Etan,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 245,Etan 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 245,Songu South,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 245,Songu South 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 245,Songu South West,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 245,Songu South West 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 245,Zabazaba,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 245,Zabazaba 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 256,Ofuruma,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 256,Ofuruma 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 256,Pina,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 256,Pina 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 276,Stubb,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 279,Beni Uden,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 279,Beni Uden 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 279,Egbedi Creek,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 279,Egbedi Creek 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 279,Kolobir I,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 279,Kolobir I 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 279,Koroama,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 279,Ososo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 279,Ososo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 281,Ekoro,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 281,Ekoro 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 282,Agbaya,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 282,Atala,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 282,Egunabo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 282,Egunabo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 282,Eremor,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 297,Kuro,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 297,Kuro 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 322,Bobo,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 322,Bobo 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 471,Apoi North - Funiwa,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 471,Chioma North,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 471,Chioma North 2,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 471,Ekeh,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 471,Ekeh 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2005,Elebele Creek,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2005,Elebele Creek 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2005,Ogbele,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2005,Soku North,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2006,Emohua,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2006,Emohua 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2007,Aghigho,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2007,Upokit I N,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2007,Upokit I N. 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2007,Upomami,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2007,Upomami S,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2012,Shokoloko,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
+OPL 2012,Shokoloko 1,field,false,IHS Markit Niger Delta concession map (Jan 2022),2022-01-18
