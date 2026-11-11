@@ -149,11 +149,10 @@ def facility_items(feats, src, rel) -> list:
         g, p = f["geometry"], f["properties"]
         if g["type"] != "Point" or not p.get("name") or not inside_nigeria(g):
             continue
-        data = {"name": p["name"], "facility_type": (p.get("facility_type") or "").lower() or None,
-                "operator": p.get("operator"), "owner": p.get("owner"),
-                "capacity_bpd": p.get("capacity_bpd"), "capacity_mmscfd": p.get("capacity_mmscfd"),
+        data = {**{k: v for k, v in p.items() if v not in (None, "")},
+                "name": p["name"], "facility_type": (p.get("facility_type") or "").lower() or None,
                 "longitude": g["coordinates"][0], "latitude": g["coordinates"][1],
-                "file": rel, "source": src, "suggested_grade": "A"}
+                "file": rel, "source": src, "suggested_grade": "B" if src.get("licensed") else "A"}
         items.append({"proposed_data": data, "source_url": src.get("url"),
                       "dedupe_key": pc.make_key("facility", json.dumps(data, sort_keys=True, default=str))})
     return items
@@ -165,11 +164,29 @@ def pipeline_items(feats, src, rel) -> list:
         g, p = f["geometry"], f["properties"]
         if g["type"] not in ("LineString", "MultiLineString") or not p.get("name") or not inside_nigeria(g):
             continue
-        data = {"name": p["name"], "operator": p.get("operator"), "capacity_bpd": p.get("capacity_bpd"),
-                "status": (p.get("status") or "unknown").lower(), "route": g,
-                "file": rel, "source": src, "suggested_grade": "A"}
+        data = {**{k: v for k, v in p.items() if v not in (None, "")},
+                "name": p["name"], "status": (p.get("status") or "unknown").lower(), "route": g,
+                "file": rel, "source": src, "suggested_grade": "B" if src.get("licensed") else "A"}
         items.append({"proposed_data": data, "source_url": src.get("url"),
                       "dedupe_key": pc.make_key("pipeline", json.dumps(data, sort_keys=True, default=str))})
+    return items
+
+
+def well_items(feats, src, rel) -> list:
+    items = []
+    for f in feats:
+        g, p = f["geometry"], f["properties"]
+        if g["type"] != "Point" or not inside_nigeria(g):
+            continue
+        title = pc.normalise_title(p.get("title_number")) if p.get("title_number") else None
+        data = {**{k: v for k, v in p.items() if v not in (None, "")},
+                "name": p.get("name") or "Unnamed well", "title_number": title,
+                "is_target_asset": title in pc.TARGET_ASSETS if title else False,
+                "longitude": g["coordinates"][0], "latitude": g["coordinates"][1],
+                "file": rel, "source": src, "suggested_grade": "B" if src.get("licensed") else "A"}
+        items.append({"proposed_data": data, "source_url": src.get("url"),
+                      "dedupe_key": pc.make_key("well", data["name"], round(g["coordinates"][0], 4),
+                                                round(g["coordinates"][1], 4))})
     return items
 
 
@@ -200,7 +217,7 @@ def main() -> int:
     cfg, scope = config["reference"], config["assets"].get("scope", "pilots")
     base = os.path.join(ROOT, cfg["folder"])
     kinds = {"boundaries": ("asset_boundary", None), "facilities": ("facility", None),
-             "pipelines": ("pipeline", None), "aliases": ("asset_alias", None)}
+             "pipelines": ("pipeline", None), "aliases": ("asset_alias", None), "wells": ("wells", None)}
     alias_scope = cfg.get("alias_scope", "all")
     totals = {}
     for kind, (target, _) in kinds.items():
@@ -235,6 +252,8 @@ def main() -> int:
                 items += boundary_items(feats, src, rel, cfg, scope)
             elif kind == "facilities":
                 items += facility_items(feats, src, rel)
+            elif kind == "wells":
+                items += well_items(feats, src, rel)
             else:
                 items += pipeline_items(feats, src, rel)
         totals[target] = pc.post_staging(target, items, COLLECTOR)
