@@ -3,15 +3,15 @@ name: Automated Ingestion Pipeline
 on:
   schedule:
     - cron: '0 5 * * *'    # daily 06:00 WAT: news bulletin
-    - cron: '0 6 * * 1'    # Mondays 07:00 WAT: NUPRC production, NOSDRA spills, NMDPRA reports
-    - cron: '0 7 1 * *'    # 1st of each month 08:00 WAT: licence register (OMLs)
+    - cron: '0 6 * * 1'    # Mondays 07:00 WAT: NUPRC production, NOSDRA spills, NMDPRA, rigs, company disclosures
+    - cron: '0 7 1 * *'    # 1st of each month 08:00 WAT: licence register (all titles) + NUPRC annual reports
   push:
     branches: [main]
     paths: ['data/reference/**']   # map files dropped into the repo
   workflow_dispatch:
     inputs:
       collectors:
-        description: 'Collectors to run: all, or a comma list of nuprc, nosdra, nmdpra, news, assets, reference'
+        description: 'Collectors to run: all, or a comma list of nuprc, nosdra, nmdpra, rigs, annual, disclosures, news, assets, reference'
         required: false
         default: 'all'
       dry_run:
@@ -38,7 +38,7 @@ permissions:
 jobs:
   ingest:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repository
@@ -69,14 +69,14 @@ jobs:
             schedule)
               case "$SCHEDULE" in
                 '0 5 * * *') LIST="news" ;;
-                '0 6 * * 1') LIST="nuprc,nosdra,nmdpra" ;;
-                '0 7 1 * *') LIST="assets" ;;
+                '0 6 * * 1') LIST="nuprc,nosdra,nmdpra,rigs,disclosures" ;;
+                '0 7 1 * *') LIST="assets,annual" ;;
                 *)           LIST="" ;;
               esac ;;
           esac
           echo "Collectors: $LIST"
           echo "list=$LIST" >> "$GITHUB_OUTPUT"
-          if echo "$LIST" | grep -qE 'all|nuprc|nosdra|nmdpra|news|assets'; then echo "browser=1" >> "$GITHUB_OUTPUT"; fi
+          if echo "$LIST" | grep -qE 'all|nuprc|nosdra|nmdpra|news|assets|rigs|annual|disclosures'; then echo "browser=1" >> "$GITHUB_OUTPUT"; fi
 
       - name: Install headless browser (for JavaScript-rendered sites)
         if: steps.pick.outputs.browser == '1'
@@ -90,7 +90,7 @@ jobs:
           INGESTION_SECRET_KEY: ${{ secrets.INGESTION_SECRET_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-haiku-5-5' }}
-          MAX_OUTPUT_TOKENS: ${{ vars.MAX_OUTPUT_TOKENS || '32000' }}
+          MAX_OUTPUT_TOKENS: ${{ vars.MAX_OUTPUT_TOKENS || '64000' }}
           NUPRC_REPORTS_INDEX: ${{ vars.NUPRC_REPORTS_INDEX || 'https://www.nuprc.gov.ng/reports' }}
           NUPRC_REPORT_KEYWORDS: ${{ vars.NUPRC_REPORT_KEYWORDS || 'production' }}
           NUPRC_PDF_URLS: ${{ inputs.pdf_url }}
