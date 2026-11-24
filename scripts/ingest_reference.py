@@ -190,6 +190,49 @@ def well_items(feats, src, rel) -> list:
     return items
 
 
+def detail_items(path, src, rel) -> list:
+    """CSV of register fields per title (e.g. terrain and water depth derived from the map)."""
+    items = []
+    with open(path, encoding="utf-8-sig") as f:
+        for r in csv.DictReader(f):
+            title = pc.normalise_title(r.get("title_number"))
+            if not title:
+                continue
+            fields = {}
+            for k in ("terrain", "water_depth_min_m", "water_depth_max_m", "basin", "state", "contract_type", "status"):
+                v = (r.get(k) or "").strip()
+                if v:
+                    fields[k] = int(v) if k.startswith("water_depth") and v.lstrip("-").isdigit() else v
+            if not fields:
+                continue
+            data = {"title_number": title, "is_target_asset": title in pc.TARGET_ASSETS, "fields": fields,
+                    "null_means": "not stated; keep current value", "evidence": r.get("note"),
+                    "file": rel, "source": src, "source_name": src.get("publisher"),
+                    "suggested_grade": "B" if src.get("licensed") else "A", "licensed": bool(src.get("licensed"))}
+            items.append({"proposed_data": data, "source_url": src.get("url"),
+                          "dedupe_key": pc.make_key("asset_detail", title, sorted(fields.items()), rel)})
+    return items
+
+
+def route_items(path, src, rel) -> list:
+    """CSV of export points per title: title_number, facility_name, facility_type, mode, basis."""
+    items = []
+    with open(path, encoding="utf-8-sig") as f:
+        for r in csv.DictReader(f):
+            title = pc.normalise_title(r.get("title_number"))
+            name = (r.get("facility_name") or "").strip()
+            if not title or not name:
+                continue
+            data = {"title_number": title, "is_target_asset": title in pc.TARGET_ASSETS,
+                    "mode": (r.get("mode") or "pipeline").strip().lower(),
+                    "segments": [{"seq": 1, "facility_name": name, "facility_type": (r.get("facility_type") or "").strip()}],
+                    "basis": r.get("basis"), "file": rel, "source": src,
+                    "suggested_grade": "B" if src.get("licensed") else "A", "licensed": bool(src.get("licensed"))}
+            items.append({"proposed_data": data, "source_url": src.get("url"),
+                          "dedupe_key": pc.make_key("route", title, name.lower(), rel)})
+    return items
+
+
 def alias_items(path, src, rel, scope) -> list:
     """CSV with title_number, alias, alias_type, ambiguous (optional), as_of (optional)."""
     items = []
@@ -217,7 +260,9 @@ def main() -> int:
     cfg, scope = config["reference"], config["assets"].get("scope", "pilots")
     base = os.path.join(ROOT, cfg["folder"])
     kinds = {"boundaries": ("asset_boundary", None), "facilities": ("facility", None),
-             "pipelines": ("pipeline", None), "aliases": ("asset_alias", None), "wells": ("wells", None)}
+             "pipelines": ("pipeline", None), "aliases": ("asset_alias", None), "wells": ("wells", None),
+             "asset_details": ("assets", None), "evacuation": ("evacuation_route", None)}
+    failed = []
     alias_scope = cfg.get("alias_scope", "all")
     totals = {}
     for kind, (target, _) in kinds.items():
@@ -236,10 +281,11 @@ def main() -> int:
             path, rel = os.path.join(folder, name), f"{cfg['folder']}/{kind}/{name}"
             if name.endswith(".example"):
                 continue
-            if kind == "aliases":
+            if kind in ("aliases", "asset_details", "evacuation"):
                 if name.lower().endswith(".csv"):
-                    found = alias_items(path, src, rel, alias_scope)
-                    log.info(f"{rel}: {len(found)} alias(es)")
+                    found = (alias_items(path, src, rel, alias_scope) if kind == "aliases"
+                             else detail_items(path, src, rel) if kind == "asset_details" else route_items(path, src, rel))
+                    log.info(f"{rel}: {len(found)} record(s)")
                     items += found
                 continue
             try:
@@ -256,11 +302,16 @@ def main() -> int:
                 items += well_items(feats, src, rel)
             else:
                 items += pipeline_items(feats, src, rel)
-        totals[target] = pc.post_staging(target, items, COLLECTOR)
+        try:
+            totals[target] = pc.post_staging(target, items, COLLECTOR)
+        except Exception as e:  # one rejected type must not stop the others
+            log.error(f"{kind}: could not send {len(items)} '{target}' record(s): {e}")
+            failed.append(kind)
     if not totals:
         log.info(f"No reference folders with files found under {cfg['folder']}/.")
-    pc.write_summary("### Map reference data\n" + "\n".join(f"- {k}: {v} proposed" for k, v in totals.items()))
-    return 0
+    pc.write_summary("### Map reference data\n" + "\n".join(f"- {k}: {v} proposed" for k, v in totals.items())
+                     + "".join(f"\n- {k}: FAILED (see log)" for k in failed))
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

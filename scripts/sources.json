@@ -86,7 +86,7 @@
     "max_files_per_run": 8
   },
   "assets": {
-    "scope": "pilots",
+    "scope": "all",
     "reports_index": "https://www.nuprc.gov.ng/reports",
     "report_keywords": [
       "acreage",
@@ -94,7 +94,8 @@
       "licen",
       "lease"
     ],
-    "max_reports_per_series": 1
+    "max_reports_per_series": 1,
+    "_scope_note": "'all' covers every title in the NUPRC concession report and every outline on the map; 'pilots' limits to the 11 pilot blocks."
   },
   "reference": {
     "folder": "data/reference",
@@ -108,7 +109,9 @@
       "NAME",
       "Name",
       "name"
-    ]
+    ],
+    "alias_scope": "all",
+    "_note": "Boundaries follow assets.scope (pilots by default; set to 'all' for every block). Aliases go in for every block (alias_scope 'all') so news about any block can be tagged."
   },
   "nmdpra": {
     "_note": "stage=true sends the newest documents to the MD bulletin; stage=false only lists them in the log.",
@@ -164,6 +167,176 @@
           "Stock Sufficiency Report"
         ],
         "stage": false
+      }
+    ]
+  },
+  "rigs": {
+    "reports_index": "https://www.nuprc.gov.ng/reports",
+    "series_keywords": [
+      "rig-disposition",
+      "rig disposition"
+    ],
+    "max_reports": 1
+  },
+  "annual": {
+    "reports_index": "https://www.nuprc.gov.ng/reports",
+    "series_keywords": [
+      "gas-production-status-report",
+      "annual-financial-operational"
+    ],
+    "max_reports_per_series": 2,
+    "_note": "Only year-only files are read (monthly files are handled by the nuprc collector). Raise max_reports_per_series to backfill older years."
+  },
+  "disclosures": {
+    "_note": "Start URLs marked verify have not been confirmed; run with dry_run first and check each source's candidate list.",
+    "sources": [
+      {
+        "name": "Seplat Energy",
+        "company": "Seplat Energy Plc",
+        "start_urls": [
+          "https://www.seplatenergy.com/investors/"
+        ],
+        "keywords": [
+          "result",
+          "operational",
+          "trading",
+          "update",
+          "annual-report",
+          "annual report",
+          "presentation"
+        ],
+        "exclude_words": [
+          "sustainability",
+          "esg",
+          "agm",
+          "notice-of",
+          "proxy",
+          "dividend",
+          "code-of",
+          "policy",
+          "charter"
+        ],
+        "max_docs": 2,
+        "max_age_years": 1,
+        "verify": true
+      },
+      {
+        "name": "Aradel Holdings",
+        "company": "Aradel Holdings Plc",
+        "start_urls": [
+          "https://www.aradel.com/investors/"
+        ],
+        "keywords": [
+          "result",
+          "operational",
+          "update",
+          "annual-report",
+          "annual report",
+          "presentation",
+          "financial"
+        ],
+        "exclude_words": [
+          "sustainability",
+          "esg",
+          "agm",
+          "notice-of",
+          "proxy",
+          "dividend",
+          "code-of",
+          "policy",
+          "charter"
+        ],
+        "max_docs": 2,
+        "max_age_years": 1,
+        "verify": true
+      },
+      {
+        "name": "Oando",
+        "company": "Oando PLC",
+        "start_urls": [
+          "https://www.oandoplc.com/investors/"
+        ],
+        "keywords": [
+          "result",
+          "annual-report",
+          "annual report",
+          "financial",
+          "operational"
+        ],
+        "exclude_words": [
+          "sustainability",
+          "esg",
+          "agm",
+          "notice-of",
+          "proxy",
+          "dividend",
+          "code-of",
+          "policy",
+          "charter"
+        ],
+        "max_docs": 2,
+        "max_age_years": 1,
+        "verify": true
+      },
+      {
+        "name": "NNPC Ltd",
+        "company": "NNPC Limited",
+        "start_urls": [
+          "https://nnpcgroup.com/"
+        ],
+        "keywords": [
+          "financial-statement",
+          "financial statement",
+          "annual-report",
+          "annual report",
+          "audited"
+        ],
+        "exclude_words": [
+          "sustainability",
+          "esg",
+          "agm",
+          "notice-of",
+          "proxy",
+          "dividend",
+          "code-of",
+          "policy",
+          "charter"
+        ],
+        "max_docs": 1,
+        "max_age_years": 1,
+        "verify": true
+      },
+      {
+        "name": "NEITI",
+        "company": null,
+        "start_urls": [
+          "https://neiti.gov.ng/"
+        ],
+        "keywords": [
+          "oil-and-gas",
+          "oil and gas",
+          "industry-report",
+          "industry report"
+        ],
+        "exclude_words": [
+          "sustainability",
+          "esg",
+          "agm",
+          "notice-of",
+          "proxy",
+          "dividend",
+          "code-of",
+          "policy",
+          "charter",
+          "solid-minerals",
+          "solid minerals",
+          "fiscal-allocation"
+        ],
+        "max_docs": 1,
+        "max_age_years": 3,
+        "depth": 3,
+        "max_pages": 40,
+        "verify": true
       }
     ]
   }
