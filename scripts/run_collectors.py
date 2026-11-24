@@ -16,6 +16,9 @@ COLLECTORS = {
     "news": "ingest_news",          # bulletin + title facts
     "assets": "ingest_assets",      # licence register for the OMLs
     "nmdpra": "ingest_nmdpra",      # NMDPRA gas and industry reports
+    "rigs": "ingest_rigs",          # NUPRC rig disposition: current drilling by block
+    "annual": "ingest_annual",      # NUPRC yearly gas and operational reports: field/company figures
+    "disclosures": "ingest_disclosures",  # operator results and NEITI: ownership and block production
     "reference": "ingest_reference",  # map files dropped in data/reference/
 }
 

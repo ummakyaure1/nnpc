@@ -470,6 +470,58 @@ def already_seen(dedupe_key: str | None = None, source_sha256: str | None = None
         return False
 
 
+# ---------------------------------------------------------------------------
+# Shared helpers for report collectors
+# ---------------------------------------------------------------------------
+def discover_reports(index_url: str, series_keywords: list, per_series: int = 1, year_only: bool = False) -> list:
+    """Crawl a reports index (and its sub-pages) for PDFs whose link or listing page matches a keyword.
+    Returns [(pdf_url, series_slug)], newest first within each series."""
+    prefix = urlparse(index_url).path.rstrip("/")
+    on_site = same_site([index_url])
+    kws = [k.lower() for k in series_keywords]
+
+    def wanted(url, v):
+        return file_ext(url) == "pdf" and any(k in unquote(f"{url} {v['found_on']}").lower() for k in kws)
+
+    links = crawl_with_fallback([index_url], lambda u: on_site(u) and urlparse(u).path.startswith(prefix),
+                                wanted, max_pages=40, depth=2)
+    series = {}
+    for url, v in links.items():
+        if wanted(url, v) and (not year_only or guess_period(url).endswith("-00")):
+            slug = urlparse(v["found_on"]).path.rstrip("/").rsplit("/", 1)[-1] or "reports"
+            series.setdefault(slug, []).append(url)
+    out = []
+    for slug, urls in sorted(series.items()):
+        urls.sort(key=guess_period, reverse=True)
+        log.info(f"Series '{slug}': {len(urls)} report(s)")
+        for i, u in enumerate(urls[:8], 1):
+            log.info(f"  {i:>2}. [{guess_period(u)}] {u}{'  <- selected' if i <= per_series else ''}")
+        out += [(u, slug) for u in urls[:per_series]]
+    return out
+
+
+def extract_chunked(pdf_bytes: bytes, system: str, instruction: str, tool: dict, list_key: str,
+                    max_tokens: int | None = None) -> tuple:
+    """Run a tool extraction over a PDF in parts of up to 90 pages. Returns (first_part_output, merged_list).
+    Any 'page' numbers in list items are converted to page numbers of the whole document."""
+    first, merged = None, []
+    for first_page, part in pdf_chunks(pdf_bytes):
+        out = call_tool(system, [pdf_document_block(part), {"type": "text", "text": instruction}], tool, max_tokens)
+        first = first or out
+        for item in out.get(list_key) or []:
+            if isinstance(item.get("page"), int):
+                item["page"] += first_page - 1
+            merged.append(item)
+    return first or {}, merged
+
+
+def verified(source_text: str, quote: str):
+    """True/False when the document has a text layer; None when it is a scan and cannot be checked."""
+    if not source_text or len(source_text) < 200:
+        return None
+    return evidence_found(source_text, quote or "")
+
+
 def write_summary(markdown: str) -> None:
     """Shows on the GitHub Actions run page."""
     path = os.environ.get("GITHUB_STEP_SUMMARY")
