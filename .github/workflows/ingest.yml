@@ -27,6 +27,11 @@ on:
         description: 'NUPRC: optional PDF links or report pages, comma-separated.'
         required: false
         default: ''
+      force:
+        description: 'Re-read documents that were already sent (use after a fix to re-send corrected proposals).'
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: ingestion
@@ -96,5 +101,6 @@ jobs:
           NUPRC_PDF_URLS: ${{ inputs.pdf_url }}
           NUPRC_MAX_REPORTS: ${{ inputs.max_reports || vars.NUPRC_MAX_REPORTS || '1' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+          FORCE_REPROCESS: ${{ inputs.force && '1' || '' }}
           COLLECTORS: ${{ steps.pick.outputs.list }}
         run: python run_collectors.py --collectors "$COLLECTORS"
