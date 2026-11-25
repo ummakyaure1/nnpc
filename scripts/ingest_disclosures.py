@@ -36,6 +36,9 @@ TOOL = {
                 "interest_pct": {"type": ["number", "null"]},
                 "is_operator": {"type": ["boolean", "null"]},
                 "interest_evidence": {"type": ["string", "null"], "description": "Exact sentence stating the interest."},
+                "interest_is_current": {"type": ["boolean", "null"],
+                                        "description": "True if this is the company's stake at the report date; false if it is "
+                                                       "a past stake (e.g. before an acquisition or divestment)."},
                 "production": {"type": "array", "items": {"type": "object", "properties": {
                     "period_label": {"type": "string", "description": "As printed, e.g. 'H1 2026', 'Q3 2026', '2025'."},
                     "period_start": {"type": ["string", "null"], "description": "YYYY-MM-DD"},
@@ -59,7 +62,8 @@ TOOL = {
 
 SYSTEM = ("You extract facts about oil and gas licences from company and audit reports, using only the document. "
           "Never add facts from your own knowledge. Every figure must be copied with its exact supporting text.")
-INSTRUCTION = ("For every licence (OML, OPL, PML, PPL) named in this part, record the stated participating interest, "
+INSTRUCTION = ("For every licence (OML, OPL, PML, PPL) named in this part, record the stated participating interest "
+               "(only one entry per company per licence: its stake at the report date; mark past stakes as not current), "
                "production figures with their period and basis, and other stated updates. Copy figures and units "
                "exactly as printed; do not convert. Skip licences mentioned only in passing.")
 
@@ -105,8 +109,17 @@ def candidates(src: dict) -> list:
     return [(u, t) for _, u, t in found[: int(src.get("max_docs", 2))]]
 
 
+_SUFFIXES = r"\b(plc|limited|ltd|llc|inc|nigeria|nig|company|co|holdings?|group)\b\.?"
+
+
+def company_key(name: str) -> str:
+    """'Oando PLC', 'OANDO Plc.' -> 'oando'. Used to keep one stake per company per block."""
+    k = re.sub(_SUFFIXES, "", (name or "").lower())
+    return re.sub(r"[^a-z0-9]", "", k)
+
+
 def build_items(out: dict, assets: list, text: str, url: str, sha: str, src: dict) -> list:
-    items = []
+    items, stakes = [], {}
     company_default = out.get("reporting_company") or src.get("company")
     common = {"report_title": out.get("report_title"), "source_name": src["name"], "source_url": url,
               "source_sha256": sha, "extraction_model": pc.ANTHROPIC_MODEL}
@@ -116,15 +129,13 @@ def build_items(out: dict, assets: list, text: str, url: str, sha: str, src: dic
             continue
         base = {"title_number": title, "is_target_asset": title in pc.TARGET_ASSETS, "source_page": a.get("page"), **common}
         company = (a.get("company") or company_default or "").strip()
-        if a.get("interest_pct") is not None and company:
+        if a.get("interest_pct") is not None and company and a.get("interest_is_current") is not False:
             ok = pc.row_verified(text, a.get("interest_evidence"), names=[title], numbers=[a["interest_pct"]])
             if ok is not False:
-                items.append(("asset_partners", {
-                    "proposed_data": {**base, "company": company, "interest_pct": a["interest_pct"],
-                                      "is_operator": a.get("is_operator"), "as_of": out.get("report_period_end"),
-                                      "evidence": a.get("interest_evidence"), "evidence_verified": ok,
-                                      "suggested_grade": "B"},
-                    "source_url": url, "dedupe_key": pc.make_key("partner", sha, title, company.lower(), a["interest_pct"])}))
+                stakes.setdefault(title, {})[company_key(company)] = {
+                    **base, "company": company, "interest_pct": a["interest_pct"], "is_operator": a.get("is_operator"),
+                    "as_of": out.get("report_period_end"), "evidence": a.get("interest_evidence"),
+                    "evidence_verified": ok, "suggested_grade": "B"}
         for p in a.get("production") or []:
             ok = pc.row_verified(text, p.get("evidence"), names=[title],
                                  numbers=[p.get(k) for k in ("oil_value", "gas_value", "boe_value")])
@@ -156,6 +167,27 @@ def build_items(out: dict, assets: list, text: str, url: str, sha: str, src: dic
                                   "evidence": u.get("evidence"), "evidence_verified": ok,
                                   "published_at": out.get("report_period_end"), "suggested_grade": "B"},
                 "source_url": url, "dedupe_key": pc.make_key("fact", sha, title, u.get("evidence"))}))
+    for title, by_company in stakes.items():
+        # A parent and its subsidiary stating the same stake ('Oando PLC' / 'Oando Energy Resources') are one holding.
+        merged = {}
+        for key, st in by_company.items():
+            first = re.sub(r"[^a-z0-9]", "", (st["company"].split() or [""])[0].lower())
+            twin = next((k for k, v in merged.items()
+                         if re.sub(r"[^a-z0-9]", "", (v["company"].split() or [""])[0].lower()) == first
+                         and abs(float(v["interest_pct"]) - float(st["interest_pct"])) < 0.01), None)
+            if twin:
+                merged[twin].setdefault("also_named_as", []).append(st["company"])
+            else:
+                merged[key] = st
+        by_company = merged
+        total = sum(float(s["interest_pct"]) for s in by_company.values())
+        for key, s in by_company.items():
+            if total > 100.5:
+                s["shares_conflict"] = f"stakes stated for {title} in this document add up to {total:g}%; check before approving"
+            items.append(("asset_partners", {"proposed_data": s, "source_url": url,
+                                             "dedupe_key": pc.make_key("partner", sha, title, key, s["interest_pct"])}))
+        if total > 100.5:
+            log.warning(f"  {title}: stated stakes add up to {total:g}%; flagged for the MD")
     return items
 
 
