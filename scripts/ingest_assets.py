@@ -21,6 +21,10 @@ STATUS_MAP = {"produc": "producing", "develop": "development", "explor": "explor
               "relinqu": "relinquished", "revok": "revoked", "conver": "under_conversion"}
 TERRAIN_MAP = {"deep": "deep_offshore", "shallow": "shallow_offshore", "swamp": "swamp", "land": "onshore",
                "onshore": "onshore", "inland": "frontier_inland", "frontier": "frontier_inland", "offshore": "shallow_offshore"}
+# Register fields the portal accepts on approval (anything else is sent under "as_printed").
+REGISTER_FIELDS = {"title_type", "contract_type", "status", "area_km2", "terrain", "basin", "state", "lga",
+                   "award_date", "expiry_date", "water_depth_min_m", "water_depth_max_m", "crude_grade", "export_stream"}
+
 CONTRACT_MAP = {"psc": "PSC", "production sharing": "PSC", "jv": "JV", "joint venture": "JV",
                 "service": "service_contract", "sole": "sole_risk", "marginal": "marginal_field"}
 
@@ -142,16 +146,23 @@ def process_report(url: str, scope: str) -> tuple:
             "award_date": row.get("award_date"), "expiry_date": row.get("expiry_date"),
         }
         fields = {k: v for k, v in fields.items() if v not in (None, "", [])}
+        # Only send fields the portal's register accepts; everything else travels as context.
+        as_printed = {k: fields.pop(k) for k in list(fields) if k not in REGISTER_FIELDS}
         common = {"title_number": title, "is_target_asset": title in pc.TARGET_ASSETS,
                   "report_title": out.get("report_title"), "as_of": out.get("as_of"),
                   "source_page": row.get("page"), "evidence": row.get("evidence"),
                   "evidence_verified": verified, "suggested_grade": "A",
                   "source_name": "NUPRC", "source_url": url}
-        assets.append({"proposed_data": {**common, "fields": fields, "null_means": "not stated; keep current value"},
+        if not fields and not row.get("operator"):
+            continue
+        assets.append({"proposed_data": {**common, "fields": fields, "as_printed": as_printed,
+                                         "null_means": "not stated; keep current value"},
                        "source_url": url, "dedupe_key": pc.make_key("asset", sha, title, sorted(fields.items()))})
-        for p in row.get("partners") or []:
-            if not p.get("company"):
-                continue
+        listed = [p for p in (row.get("partners") or []) if p.get("company")]
+        op = (row.get("operator") or "").strip()
+        if op and not any(p["company"].strip().lower() == op.lower() for p in listed):
+            listed.append({"company": op, "interest_pct": None})
+        for p in listed:
             partners.append({"proposed_data": {**common, "company": p["company"].strip(),
                                                "interest_pct": p.get("interest_pct"),
                                                "is_operator": bool(row.get("operator")) and
