@@ -6,6 +6,7 @@ Reads NUPRC's rig disposition report (monthly) and proposes 'rig_activity' recor
 which rig is doing what, for which operator, on which well, field and licence.
 Rows are kept only if their text is found in the PDF (when the PDF has a text layer).
 """
+import calendar
 import hashlib
 import sys
 
@@ -48,6 +49,16 @@ SYSTEM = ("You transcribe regulator rig reports exactly as printed. Never add fa
           "use null when a value is not printed.")
 
 
+def period_end(period: str) -> str:
+    """'2026-03' -> '2026-03-31'; '2025-00' -> '2025-12-31'; unknown -> today."""
+    from datetime import date
+    y, m = int(period[:4]), int(period[5:7])
+    if not y:
+        return date.today().isoformat()
+    m = m or 12
+    return f"{y}-{m:02d}-{calendar.monthrange(y, m)[1]:02d}"
+
+
 def main() -> int:
     if not pc.check_env():
         return 1
@@ -73,17 +84,19 @@ def main() -> int:
             text = pc.pdf_text(pdf)
             head, rigs = pc.extract_chunked(pdf, SYSTEM, "Transcribe every rig row. Copy each row's text as evidence.",
                                             RIG_TOOL, "rigs")
-            log.info(f"{head.get('report_title')} | as of {head.get('as_of')} | {len(rigs)} rig row(s)")
+            as_of = head.get("as_of") or period_end(pc.guess_period(f"{head.get('report_title', '')} {url}"))
+            log.info(f"{head.get('report_title')} | as of {as_of} | {len(rigs)} rig row(s)")
             dropped = 0
             for r in rigs:
-                ok = pc.verified(text, r.get("evidence"))
+                ok = pc.row_verified(text, r.get("evidence"), names=[r.get("rig_name")])
                 if ok is False:
                     dropped += 1
                     continue
                 title = pc.normalise_title(r.get("title_number"))
                 data = {**{k: v for k, v in r.items() if v not in (None, "")},
                         "title_number": title, "is_target_asset": title in pc.TARGET_ASSETS if title else False,
-                        "as_of": head.get("as_of"), "report_title": head.get("report_title"),
+                        "as_of": as_of, "as_of_source": "printed" if head.get("as_of") else "report period",
+                        "report_title": head.get("report_title"),
                         "evidence_verified": ok, "source_sha256": sha, "source_name": "NUPRC",
                         "source_url": url, "suggested_grade": "A", "extraction_model": pc.ANTHROPIC_MODEL}
                 items.append({"proposed_data": data, "source_url": url,

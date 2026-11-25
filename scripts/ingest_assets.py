@@ -107,7 +107,7 @@ def process_report(url: str, scope: str) -> tuple:
     focus = ("Only record rows for these titles: " + ", ".join(pc.TARGET_ASSETS)) if scope == "pilots" \
         else "Record every licence row."
     out = {"report_title": None, "as_of": None, "rows": []}
-    for first_page, part in pc.pdf_chunks(pdf):
+    for first_page, part in pc.pdf_chunks(pdf, 15):
         res = pc.call_tool(
             "You transcribe licence registers exactly as printed. Never add facts from your own knowledge; "
             "use null when a value is not printed.",
@@ -127,7 +127,8 @@ def process_report(url: str, scope: str) -> tuple:
         title = pc.normalise_title(row.get("title_number"))
         if not title or (scope == "pilots" and title not in pc.TARGET_ASSETS):
             continue
-        verified = pc.evidence_found(text, row.get("evidence", "")) if text else None
+        verified = pc.row_verified(text, row.get("evidence", ""), names=[title],
+                                   numbers=[row["area_km2"]] if isinstance(row.get("area_km2"), (int, float)) else [])
         if verified is False:
             log.warning(f"  dropped {title}: its evidence text was not found in the PDF")
             continue

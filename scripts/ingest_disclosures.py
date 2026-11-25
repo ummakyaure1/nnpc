@@ -10,6 +10,7 @@ and NEITI industry reports, and proposes for each licence they mention:
 Every item needs a quote that is found word for word in the document (when it has a text layer).
 """
 import hashlib
+import os
 import re
 import sys
 from datetime import date
@@ -63,6 +64,18 @@ INSTRUCTION = ("For every licence (OML, OPL, PML, PPL) named in this part, recor
                "exactly as printed; do not convert. Skip licences mentioned only in passing.")
 
 
+DROP_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "documents")
+
+
+def dropped_documents() -> list:
+    """PDFs placed in data/documents/ (for sites that block automated downloads)."""
+    if not os.path.isdir(DROP_FOLDER):
+        return []
+    files = sorted(f for f in os.listdir(DROP_FOLDER) if f.lower().endswith(".pdf"))
+    log.info(f"Document drop folder: {len(files)} PDF(s)")
+    return [os.path.join(DROP_FOLDER, f) for f in files]
+
+
 def candidates(src: dict) -> list:
     kws = [k.lower() for k in src.get("keywords", [])]
     on_site = pc.same_site(src["start_urls"])
@@ -73,7 +86,9 @@ def candidates(src: dict) -> list:
         text = f"{url} {v['text']}".lower()
         return (pc.file_ext(url) == "pdf" and any(k in text for k in kws) and not any(w in text for w in excluded))
 
-    links = pc.crawl_with_fallback(src["start_urls"], on_site, wanted, max_pages=int(src.get("max_pages", 25)),
+    follow_terms = [t.lower() for t in src.get("follow_contains", [])]
+    follow = (lambda u: on_site(u) and any(t in u.lower() for t in follow_terms)) if follow_terms else on_site
+    links = pc.crawl_with_fallback(src["start_urls"], follow, wanted, max_pages=int(src.get("max_pages", 25)),
                                    depth=int(src.get("depth", 2)))
     found = []
     for u, v in links.items():
@@ -102,7 +117,7 @@ def build_items(out: dict, assets: list, text: str, url: str, sha: str, src: dic
         base = {"title_number": title, "is_target_asset": title in pc.TARGET_ASSETS, "source_page": a.get("page"), **common}
         company = (a.get("company") or company_default or "").strip()
         if a.get("interest_pct") is not None and company:
-            ok = pc.verified(text, a.get("interest_evidence"))
+            ok = pc.row_verified(text, a.get("interest_evidence"), names=[title], numbers=[a["interest_pct"]])
             if ok is not False:
                 items.append(("asset_partners", {
                     "proposed_data": {**base, "company": company, "interest_pct": a["interest_pct"],
@@ -111,7 +126,8 @@ def build_items(out: dict, assets: list, text: str, url: str, sha: str, src: dic
                                       "suggested_grade": "B"},
                     "source_url": url, "dedupe_key": pc.make_key("partner", sha, title, company.lower(), a["interest_pct"])}))
         for p in a.get("production") or []:
-            ok = pc.verified(text, p.get("evidence"))
+            ok = pc.row_verified(text, p.get("evidence"), names=[title],
+                                 numbers=[p.get(k) for k in ("oil_value", "gas_value", "boe_value")])
             if ok is False:
                 continue
             days = units.period_days(start=p.get("period_start"), end=p.get("period_end"))
@@ -148,11 +164,17 @@ def main() -> int:
         return 1
     cfg = pc.load_config().get("disclosures") or {}
     by_target, failures, read = {}, 0, 0
-    for src in cfg.get("sources", []):
-        if not src.get("enabled", True):
-            continue
+    sources = [s for s in cfg.get("sources", []) if s.get("enabled", True)]
+    for s in sources:
+        if s.get("allow_broken_certificate"):
+            for u in s["start_urls"]:
+                host = pc.urlparse(u).netloc.removeprefix("www.")
+                pc.INSECURE_HOSTS.add(host)
+                log.warning(f"{s['name']}: certificate checks are off for {host} (its certificate chain is incomplete)")
+    local = [{"name": "Document drop folder", "company": None, "_files": dropped_documents()}]
+    for src in sources + local:
         try:
-            docs = candidates(src)
+            docs = [(f, os.path.basename(f)) for f in src["_files"]] if "_files" in src else candidates(src)
         except Exception as e:
             log.warning(f"{src['name']}: discovery failed: {e}")
             continue
@@ -160,7 +182,12 @@ def main() -> int:
             continue
         for url, _ in docs:
             try:
-                pdf = pc.fetch_pdf(url)
+                if os.path.isfile(url):
+                    with open(url, "rb") as fh:
+                        pdf = fh.read()
+                    url = f"repo:data/documents/{os.path.basename(url)}"
+                else:
+                    pdf = pc.fetch_pdf(url)
                 sha = hashlib.sha256(pdf).hexdigest()
                 if pc.already_seen(source_sha256=sha):
                     log.info(f"  already received {url}; skipping")

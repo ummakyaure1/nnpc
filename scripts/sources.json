@@ -218,7 +218,9 @@
         ],
         "max_docs": 2,
         "max_age_years": 1,
-        "verify": true
+        "verify": true,
+        "enabled": false,
+        "_note": "Website blocks automated access (HTTP 403). Put their results PDFs in data/documents/ instead."
       },
       {
         "name": "Aradel Holdings",
@@ -248,13 +250,15 @@
         ],
         "max_docs": 2,
         "max_age_years": 1,
-        "verify": true
+        "verify": true,
+        "enabled": false,
+        "_note": "Website blocks automated access (HTTP 403). Put their results PDFs in data/documents/ instead."
       },
       {
         "name": "Oando",
         "company": "Oando PLC",
         "start_urls": [
-          "https://www.oandoplc.com/investors/"
+          "https://www.oandoplc.com/investor-relations"
         ],
         "keywords": [
           "result",
@@ -276,13 +280,19 @@
         ],
         "max_docs": 2,
         "max_age_years": 1,
-        "verify": true
+        "follow_contains": [
+          "investor",
+          "result",
+          "financial",
+          "report"
+        ]
       },
       {
         "name": "NNPC Ltd",
         "company": "NNPC Limited",
         "start_urls": [
-          "https://nnpcgroup.com/"
+          "https://nnpcgroup.com/investors",
+          "https://nnpcgroup.com/documents"
         ],
         "keywords": [
           "financial-statement",
@@ -304,7 +314,13 @@
         ],
         "max_docs": 1,
         "max_age_years": 1,
-        "verify": true
+        "verify": true,
+        "follow_contains": [
+          "investor",
+          "document",
+          "financial",
+          "report"
+        ]
       },
       {
         "name": "NEITI",
@@ -336,7 +352,8 @@
         "max_age_years": 3,
         "depth": 3,
         "max_pages": 40,
-        "verify": true
+        "verify": true,
+        "allow_broken_certificate": true
       }
     ]
   }

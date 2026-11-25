@@ -125,7 +125,8 @@ def main() -> int:
             head, rows = pc.extract_chunked(pdf, SYSTEM, INSTRUCTION, TOOL, "rows")
             kept = []
             for r in rows:
-                r["_verified"] = pc.verified(text, r.get("evidence"))
+                r["_verified"] = pc.row_verified(text, r.get("evidence"), names=[r.get("entity_name")],
+                                                 numbers=list((r.get("values") or {}).values()))
                 if r["_verified"] is not False:
                     kept.append(r)
             if len(kept) < len(rows):

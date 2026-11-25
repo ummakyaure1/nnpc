@@ -96,11 +96,15 @@ SESSION = requests.Session()
 SESSION.headers.update(HTTP_HEADERS)
 
 
+INSECURE_HOSTS = set()  # hosts with broken certificate chains, allowed explicitly in sources.json
+
+
 def fetch(url: str, attempts: int = 3, timeout: int = 60) -> requests.Response:
     last = None
+    verify = urlparse(url).netloc.removeprefix("www.") not in INSECURE_HOSTS
     for attempt in range(1, attempts + 1):
         try:
-            r = SESSION.get(url, timeout=timeout)
+            r = SESSION.get(url, timeout=timeout, verify=verify)
             if r.status_code in (429, 500, 502, 503, 504):
                 raise requests.HTTPError(f"HTTP {r.status_code}", response=r)
             r.raise_for_status()
@@ -232,7 +236,8 @@ class BrowserFetcher:
 
     def __call__(self, url: str):
         try:
-            self._page.goto(url, wait_until="networkidle", timeout=45_000)
+            self._page.goto(url, wait_until="domcontentloaded", timeout=30_000)
+            self._page.wait_for_timeout(3000)
             return self._page.content()
         except Exception as e:
             log.warning(f"Browser could not load {url}: {e}")
@@ -298,8 +303,8 @@ def render_page(url: str, wait_ms: int = 6000, max_bytes: int = 25 * 1024 * 1024
         page = browser.new_page(user_agent=HTTP_HEADERS["User-Agent"])
         page.on("response", on_response)
         try:
-            page.goto(url, wait_until="networkidle", timeout=90_000)
-            page.wait_for_timeout(wait_ms)
+            page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+            page.wait_for_timeout(max(wait_ms, 6000))
             html = page.content()
         except Exception as e:
             log.warning(f"Browser load of {url} incomplete: {e}")
@@ -407,6 +412,41 @@ def make_key(*parts) -> str:
     return hashlib.sha256("|".join(str(p) for p in parts).encode("utf-8")).hexdigest()
 
 
+def adapt_types(chunk: list, response) -> bool:
+    """If the portal rejected fields only because of their type, convert them and allow a retry:
+    true/false or numbers where text is expected become text; empty values where text is expected are removed."""
+    try:
+        issues = response.json().get("issues") or []
+    except ValueError:
+        return False
+    to_text, to_drop = set(), set()
+    for i in issues:
+        path, msg = i.get("path") or [], str(i.get("message", ""))
+        if len(path) == 3 and path[1] == "proposed_data" and "Expected string" in msg:
+            if "received null" in msg or "received undefined" in msg:
+                to_drop.add(path[2])
+            elif "received boolean" in msg or "received number" in msg:
+                to_text.add(path[2])
+    if not (to_text or to_drop) or len(issues) == 0:
+        return False
+    key = (frozenset(to_text), frozenset(to_drop))
+    if getattr(adapt_types, "_last", None) == key:   # same fix already tried: give up
+        return False
+    adapt_types._last = key
+    for item in chunk:
+        pd_ = item["proposed_data"]
+        for k in to_text:
+            if isinstance(pd_.get(k), bool):
+                pd_[k] = "yes" if pd_[k] else "no"
+            elif pd_.get(k) is not None:
+                pd_[k] = str(pd_[k])
+        for k in to_drop:
+            if pd_.get(k) is None:
+                pd_.pop(k, None)
+    log.warning(f"Portal expects text for {sorted(to_text) or '-'}; removed empty {sorted(to_drop) or '-'}; retrying.")
+    return True
+
+
 def post_staging(target_table: str, items: list, collector: str, attempts: int = 3) -> int:
     """items: [{"proposed_data": {...}, "source_url": str, "dedupe_key": str}]"""
     if not items:
@@ -436,6 +476,8 @@ def post_staging(target_table: str, items: list, collector: str, attempts: int =
                 if 200 <= r.status_code < 300:
                     log.info(f"Staging accepted {len(chunk)} '{target_table}' record(s): {r.text[:300]}")
                     break
+                if r.status_code == 400 and adapt_types(chunk, r):
+                    continue  # retry immediately with adjusted field types
                 if 400 <= r.status_code < 500 and r.status_code != 429:
                     raise RuntimeError(f"Staging rejected '{target_table}' (HTTP {r.status_code}): {r.text[:500]}")
                 log.warning(f"Staging returned HTTP {r.status_code}: {r.text[:300]}")
@@ -459,7 +501,7 @@ def already_seen(dedupe_key: str | None = None, source_sha256: str | None = None
     params = {k: v for k, v in (("dedupe_key", dedupe_key), ("source_sha256", source_sha256)) if v}
     try:
         r = SESSION.get(APP_INGESTION_URL.rstrip("/") + "/seen", params=params,
-                        headers={"x-ingestion-key": INGESTION_SECRET_KEY}, timeout=20)
+                        headers={"x-ingestion-key": INGESTION_SECRET_KEY}, timeout=45)
         if r.status_code == 200:
             return bool(r.json().get("seen"))
         raise RuntimeError(f"HTTP {r.status_code}")
@@ -501,11 +543,11 @@ def discover_reports(index_url: str, series_keywords: list, per_series: int = 1,
 
 
 def extract_chunked(pdf_bytes: bytes, system: str, instruction: str, tool: dict, list_key: str,
-                    max_tokens: int | None = None) -> tuple:
+                    max_tokens: int | None = None, chunk_pages: int = 90) -> tuple:
     """Run a tool extraction over a PDF in parts of up to 90 pages. Returns (first_part_output, merged_list).
     Any 'page' numbers in list items are converted to page numbers of the whole document."""
     first, merged = None, []
-    for first_page, part in pdf_chunks(pdf_bytes):
+    for first_page, part in pdf_chunks(pdf_bytes, chunk_pages):
         out = call_tool(system, [pdf_document_block(part), {"type": "text", "text": instruction}], tool, max_tokens)
         first = first or out
         for item in out.get(list_key) or []:
@@ -513,6 +555,32 @@ def extract_chunked(pdf_bytes: bytes, system: str, instruction: str, tool: dict,
                 item["page"] += first_page - 1
             merged.append(item)
     return first or {}, merged
+
+
+def _digits_text(s: str) -> str:
+    return re.sub(r"(?<=\d),(?=\d{3})", "", _norm(s))
+
+
+def row_verified(source_text: str, quote: str, names=(), numbers=()):
+    """Checks a table row: the exact quote, or else every name (letters only, spaces ignored) and at least
+    one of the numbers must appear in the document text. Returns True / False / None (no text layer)."""
+    if not source_text or len(source_text) < 200:
+        return None
+    if evidence_found(source_text, quote or ""):
+        return True
+    squashed = re.sub(r"[^a-z0-9]", "", source_text.lower())
+    names = [re.sub(r"[^a-z0-9]", "", str(n).lower()) for n in names if n]
+    if not names or not all(n in squashed for n in names if len(n) >= 3):
+        return False
+    nums = [n for n in numbers if isinstance(n, (int, float))]
+    if not nums:
+        return True
+    digits = _digits_text(source_text)
+    for n in nums:
+        forms = {f"{n:g}", f"{n:,.0f}".replace(",", ""), f"{n:.1f}", f"{n:.2f}"}
+        if any(re.search(rf"(?<![\d.]){re.escape(f)}(?![\d])", digits) for f in forms):
+            return True
+    return False
 
 
 def verified(source_text: str, quote: str):

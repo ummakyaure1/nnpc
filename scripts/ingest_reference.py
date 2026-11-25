@@ -181,6 +181,7 @@ def well_items(feats, src, rel) -> list:
         title = pc.normalise_title(p.get("title_number")) if p.get("title_number") else None
         data = {**{k: v for k, v in p.items() if v not in (None, "")},
                 "name": p.get("name") or "Unnamed well", "title_number": title,
+                "name_printed_on_map": "yes" if p.get("name_printed_on_map") else "no",
                 "is_target_asset": title in pc.TARGET_ASSETS if title else False,
                 "longitude": g["coordinates"][0], "latitude": g["coordinates"][1],
                 "file": rel, "source": src, "suggested_grade": "B" if src.get("licensed") else "A"}
